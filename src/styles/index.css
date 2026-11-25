@@ -1,0 +1,2 @@
+/* Only scan src/ for Tailwind classes: public/ holds an 8 MB single-line engine asset that stalls the scanner. */
+@import "tailwindcss" source("..");
