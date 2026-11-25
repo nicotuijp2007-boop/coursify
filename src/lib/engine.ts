@@ -75,8 +75,11 @@ export class Engine {
     return r;
   }
 
+  private started: Promise<void> | null = null;
+
+  /** Starts the engine once; later calls return the same promise. */
   start(): Promise<void> {
-    return this.serial(async () => {
+    this.started ??= this.serial(async () => {
       this.onStatus({ state: 'starting', label: 'Database starting' });
       try {
         await this.newDb();
@@ -89,6 +92,7 @@ export class Engine {
         throw e;
       }
     });
+    return this.started;
   }
 
   private ready() { this.onStatus({ state: 'ready', label: `${this.version} ready` }); }

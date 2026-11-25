@@ -1,0 +1,129 @@
+/* ==========================================================================
+   BASE TOKENS — merk-onafhankelijk
+   Versie 0.3 — 2026-09-22
+   Structuur, ruimte, typografieschaal, hoeken, schaduwen, statuskleuren.
+   Wordt gecombineerd met precies één merklaag (in deze kit: brand.css).
+   Nooit merk-specifieke waarden hier zetten.
+   ========================================================================== */
+
+:root {
+  /* ---- Neutrals (koel, licht blauwgrijs zodat ze bij blauwe merken passen) */
+  --color-bg:              #F4F7FA;   /* pagina-achtergrond                     */
+  --color-surface:         #FFFFFF;   /* cards, panelen, tabellen               */
+  --color-surface-muted:   #EEF2F6;   /* subtiele secties, tabelkop, hover-rij  */
+  --color-border:          #D9E1EA;   /* standaard rand                         */
+  --color-border-strong:   #B9C6D4;   /* invoerveld-rand, scheidingslijn nadruk */
+  --color-text:            #1F2A37;   /* lopende tekst — nooit puur zwart       */
+  --color-text-secondary:  #55657A;   /* toelichting, metadata                  */
+  --color-text-muted:      #7A8A9E;   /* placeholder, disabled                  */
+  --color-text-inverse:    #FFFFFF;   /* tekst op merkkleur                     */
+
+  /* ---- Status (afgestemd op koel blauw palet, niet framework-standaard) */
+  --color-success:         #1F8A5B;
+  --color-success-bg:      #E6F4EC;
+  --color-warning:         #C97A12;
+  --color-warning-bg:      #FDF1DF;
+  --color-danger:          #C73E3E;
+  --color-danger-bg:       #FBE8E8;
+  /* --color-info wordt door de merklaag gezet (= secundaire merkkleur) */
+
+  /* ---- Spacing: 4px-grid, 8px-ritme */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+
+  /* ---- Hoeken */
+  --radius-sm:   8px;    /* knoppen, invoervelden, badges met tekst    */
+  --radius-md:   12px;   /* cards, panelen, dropdowns, modals          */
+  --radius-lg:   24px;   /* foto's, hero-blokken, grote kleurvlakken   */
+  --radius-pill: 9999px; /* avatars, statusstippen, chips              */
+
+  /* ---- Schaduwen: alleen voor zwevende elementen */
+  --shadow-none:  none;
+  --shadow-float: 0 4px 12px rgba(31, 42, 55, 0.08), 0 1px 2px rgba(31, 42, 55, 0.06);   /* dropdown, popover, toast */
+  --shadow-modal: 0 16px 40px rgba(31, 42, 55, 0.16), 0 2px 6px rgba(31, 42, 55, 0.08); /* modal, drawer            */
+  /* Overlay achter modal/drawer: --color-text (#1F2A37) op 40% dekking.
+     Toegevoegd in 0.3; tot dan zetten projecten zelf een --overlay in globals.css. */
+  --color-overlay: rgba(31, 42, 55, 0.40);
+
+  /* ---- Typografie: families worden door merklaag ingevuld */
+  --font-heading: var(--brand-font-heading, system-ui, sans-serif);
+  --font-body:    var(--brand-font-body-app, system-ui, sans-serif);
+  --font-mono:    ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-heavy:    800;
+
+  --leading-tight:  1.2;
+  --leading-normal: 1.5;
+  --leading-loose:  1.65;
+
+  --tracking-heading: -0.01em;
+  --tracking-label:    0.04em;
+
+  /* ---- Typeschaal STAND "app" (standaard) */
+  --text-xs:   12px;
+  --text-sm:   13px;
+  --text-base: 14px;
+  --text-md:   16px;
+  --text-lg:   18px;
+  --text-xl:   22px;
+  --text-2xl:  28px;
+  --text-3xl:  34px;
+
+  /* ---- Lay-out */
+  --container-app:      1440px;
+  --container-content:  1120px;
+  --measure-content:    70ch;   /* max. regellengte lopende tekst */
+  --sidebar-width:      240px;
+  --row-height:         44px;   /* tabelrij, lijstitem, menu-item */
+  --control-height:     40px;   /* knop, invoerveld                */
+  --control-height-sm:  32px;
+
+  /* ---- Motion */
+  --duration-fast:   120ms;
+  --duration-normal: 200ms;
+  --ease-standard:   cubic-bezier(0.2, 0, 0, 1);
+
+  /* ---- Focus */
+  --focus-ring: 0 0 0 3px var(--color-focus, rgba(124, 160, 192, 0.5));
+}
+
+/* ==========================================================================
+   STAND "content" — blogs, rapporten, klantportaal, marketingpagina's
+   Activeren met data-density="content" op <html> of <body>.
+   ========================================================================== */
+[data-density="content"] {
+  --font-body:  var(--brand-font-body-content, var(--brand-font-body-app, system-ui, sans-serif));
+
+  --text-xs:   13px;
+  --text-sm:   14px;
+  --text-base: 17px;
+  --text-md:   19px;
+  --text-lg:   22px;
+  --text-xl:   28px;
+  --text-2xl:  36px;
+  --text-3xl:  48px;
+
+  --leading-normal: 1.6;
+  --row-height:     52px;
+  --control-height: 48px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast:   0ms;
+    --duration-normal: 0ms;
+  }
+}

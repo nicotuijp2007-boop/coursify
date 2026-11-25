@@ -1,0 +1,61 @@
+/* ==========================================================================
+   Alleen voor een doelrepo met Tailwind CSS v4.
+   OVERGENOMEN uit AI Academy src/app/globals.css (@theme inline-blok), ongewijzigd
+   op de hernoeming --mza-text-md → --kit-text-md na.
+   Gebruik in je eigen globals/app.css:
+     @import "tailwindcss";
+     @import "../tokens/fonts.css";
+     @import "../tokens/base.css";      ← ongelaagd, zodat :root wint van @layer theme
+     @import "../tokens/brand.css";
+     @import "./tailwind-theme.css";
+     @import "./academy.css";
+     @source "../react/src";            ← zodat Tailwind de klassen in de componenten vindt
+   Let op: dit blok verandert de betekenis van rounded-sm/lg/2xl (8/12/24 px) en zet
+   rounded-xl/3xl/4xl uit; dat kan bestaande opmaak in je doelrepo raken.
+   ========================================================================== */
+
+@theme inline {
+  /* Regel: 'inline' verplicht; rechts nooit dezelfde naam als links, nooit een v4-namespace-token. */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);           /* = secundaire TEKST (#55657A), zie :root */
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-error: var(--error);                   /* alias van danger — projectnaam behouden */
+  --color-error-bg: var(--error-bg);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-muted: var(--surface-muted);
+  --color-heading: var(--heading);
+  --color-overlay: var(--overlay);
+  --color-text-muted: var(--text-muted);
+
+  /* Hoeken: 8 / 12 / 12 / 24; xl/3xl/4xl bestaan niet. */
+  --radius-sm: var(--radius-control);
+  --radius-md: var(--radius-panel);
+  --radius-lg: var(--radius-panel);
+  --radius-2xl: var(--radius-media);
+  --radius-xl: initial;
+  --radius-3xl: initial;
+  --radius-4xl: initial;
+
+  --shadow-float: var(--elevation-float);
+  --shadow-modal: var(--elevation-modal);
+
+  --font-sans: var(--font-body);
+  --font-heading: var(--brand-font-heading);
+  /* --font-mono niet declareren: het token (systeem-monospace) geldt; de oude monospace-letter is weg. */
+
+  /* Tekstmaten: xs/sm/base/lg/xl/2xl/3xl zitten in Tailwinds eigen schaal, dus die utilities
+     bestaan al en de tokens overschrijven alleen hun waarde. 'md' bestaat daar NIET: zonder deze
+     regel wordt er geen text-md-utility gegenereerd en doet de klasse stil niets. */
+  --text-md: var(--kit-text-md);
+}

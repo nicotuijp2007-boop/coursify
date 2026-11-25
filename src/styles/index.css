@@ -1,2 +1,10 @@
-/* Only scan src/ for Tailwind classes: public/ holds an 8 MB single-line engine asset that stalls the scanner. */
+/* Load order from the AI Academy kit: Tailwind (preflight + utilities), fonts, tokens, theme bridge,
+   kit component classes, then the course's own styles. Only scan src/ for Tailwind classes:
+   public/ holds an 8 MB single-line engine asset that stalls the scanner. */
 @import "tailwindcss" source("..");
+@import "./tokens/fonts.css";
+@import "./tokens/base.css";
+@import "./tokens/brand.css";
+@import "./tailwind-theme.css";
+@import "./academy.css";
+@import "./app.css";

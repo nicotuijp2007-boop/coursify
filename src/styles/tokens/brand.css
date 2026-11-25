@@ -1,0 +1,52 @@
+/* ==========================================================================
+   MERKLAAG — persoonlijk (vervangt mza.css uit AI Academy)
+   Laden NA base.css. Alleen merk-specifieke waarden; de rest van het systeem
+   (componenten, module-preview.css) gebruikt uitsluitend de semantische namen
+   hieronder (--color-primary, --brand-primary-50, --color-inverse-*, …).
+
+   AANGEPAST voor de overdracht: dezelfde variabelen en dezelfde opbouw als
+   mza.css, maar met een eigen (neutraal) palet in plaats van MZA-blauw.
+   Ter vergelijking, de MZA-waarden waren: primary #165483, hover #124569,
+   active #0E3752, -100 #DCE6F0, -50 #EEF3F8, secondary #7CA0C0, secondary-100 #E5EDF4.
+   Eigen kleur kiezen? Vervang alleen de zeven --brand-*-waarden en controleer
+   het contrast (primary op wit >= 4.5:1, zie DESIGN_AND_MOTION.md §1.1).
+   ========================================================================== */
+
+:root {
+  /* ---- Merkkleuren (vervang deze zeven voor een andere uitstraling) */
+  --brand-primary:        #0F5E6B;   /* diep petrol — 7,4:1 op wit */
+  --brand-secondary:      #6FA3AD;   /* licht petrol — decoratief, niet voor tekst op wit */
+  --brand-primary-hover:  #0C4D58;
+  --brand-primary-active: #093C45;
+  --brand-primary-100:    #D5E9EC;   /* selectie, actieve menu-achtergrond */
+  --brand-primary-50:     #EBF4F6;   /* zeer lichte merktint */
+  --brand-secondary-100:  #E2EFF1;   /* info-achtergrond, zachte highlight */
+
+  /* ---- Semantische toewijzing (ongewijzigd t.o.v. mza.css) */
+  --color-primary:            var(--brand-primary);
+  --color-primary-hover:      var(--brand-primary-hover);
+  --color-primary-active:     var(--brand-primary-active);
+  --color-primary-soft:       var(--brand-primary-100);
+  --color-accent:             var(--brand-secondary);
+  --color-accent-soft:        var(--brand-secondary-100);
+  --color-info:               var(--brand-secondary);
+  --color-info-bg:            var(--brand-secondary-100);
+  --color-link:               var(--brand-primary);
+  --color-link-hover:         var(--brand-primary-hover);
+  --color-heading:            var(--brand-primary);
+  /* Focus-ring in de donkere merkkleur: haalt WCAG 1.4.11 (>= 3:1); de lichte tint niet. */
+  --color-focus:              var(--brand-primary);
+
+  /* ---- Inverted surface (afsluitband, zijbalk, header) */
+  --color-inverse-bg:            var(--brand-primary);
+  --color-inverse-surface:       rgba(255, 255, 255, 0.10);
+  --color-inverse-text:          #FFFFFF;
+  --color-inverse-text-muted:    rgba(255, 255, 255, 0.70);
+  --color-inverse-border:        rgba(255, 255, 255, 0.18);
+  --color-inverse-eyebrow:       var(--brand-secondary-100);
+
+  /* ---- Typografie (bestanden: fonts.css) */
+  --brand-font-heading:      "Nunito", system-ui, sans-serif;
+  --brand-font-body-app:     "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --brand-font-body-content: "Source Sans 3", system-ui, sans-serif;
+}

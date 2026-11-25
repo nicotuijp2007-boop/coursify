@@ -2,8 +2,8 @@
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 // Usage: node tests/grade-all.mjs [pageUrl] [resultFile]
-// Default checks the original course (legacy.html) on a running `npm run preview`.
-const base = process.argv[2] || "http://localhost:4173/legacy.html";
+// Default checks the React course on a running `npm run preview`; pass .../legacy.html for the original.
+const base = process.argv[2] || "http://localhost:4173/";
 const out = process.argv[3] || "test-results/grading.json";
 const root = "public";
 fs.mkdirSync("test-results", { recursive: true });
@@ -15,9 +15,18 @@ await p.goto(base + '#home'); await p.waitForFunction(() => /ready/.test(documen
 const results = [];
 async function check(card, answer) {
   await card.locator('textarea').first().fill(answer);
+  const res = card.locator('.res').first();
+  const before = await res.innerHTML();
   await card.locator('[data-act=check]').click();
-  const fb = card.locator('.res .fb').first();
-  await fb.waitFor({ timeout: 60000 });
+  // Wait for a new result, not a stale one from an earlier check of the same card.
+  await res.evaluate((el, prev) => new Promise((ok, fail) => {
+    const done = () => el.innerHTML !== prev && el.querySelector('.fb');
+    if (done()) return ok();
+    const mo = new MutationObserver(() => { if (done()) { mo.disconnect(); ok(); } });
+    mo.observe(el, { childList: true, subtree: true, characterData: true });
+    setTimeout(() => { mo.disconnect(); fail(new Error('no feedback within 60 s')); }, 60000);
+  }), before);
+  const fb = res.locator('.fb').first();
   return { cls: (await fb.getAttribute('class')).replace('fb ', ''), text: (await fb.textContent()).slice(0, 160) };
 }
 for (const m of course.modules) {
@@ -35,7 +44,7 @@ for (const m of course.modules) {
     const pr = m.checkpoint.practical;
     if (pr) { const r = await check(p.locator('#prac'), pr.check === 'js' ? pr.jsSolution : pr.solution); results.push({ id: pr.id, lesson: m.id + '-cp', check: pr.check, ...r }); }
     for (const q of m.checkpoint.quiz.filter(q => q.type === 'write')) {
-      const card = p.locator(`.card[data-q="${q.id}"]`); const r = await check(card, q.solution); results.push({ id: q.id, lesson: m.id + '-cp', check: q.check, ...r });
+      const card = p.locator(`.card[data-q="${q.id}"], .work-card[data-q="${q.id}"]`); const r = await check(card, q.solution); results.push({ id: q.id, lesson: m.id + '-cp', check: q.check, ...r });
     }
   }
   console.error(m.id, 'done', results.length);
@@ -49,6 +58,7 @@ fs.writeFileSync(out, JSON.stringify({ results, wrong, syntax, pageErrors: errs 
 const bad = results.filter(r => !r.cls.split(' ').includes('ok'));
 console.log(`checked ${results.length}, passed ${results.length - bad.length}, failed ${bad.length}`);
 bad.forEach(r => console.log(' FAIL', r.id, r.check, r.cls, r.text));
-console.log('wrong answer ->', wrong.cls, '| syntax error ->', syntax.cls, '| page errors', errs.length);
+console.log('wrong answer ->', wrong.cls, '(must not be ok) | syntax error ->', syntax.cls, '(must be err) | page errors', errs.length);
 await b.close();
-process.exitCode = bad.length || wrong.cls !== 'err' || syntax.cls !== 'err' || errs.length ? 1 : 0;
+const has = (r, c) => r.cls.split(" ").includes(c);
+process.exitCode = bad.length || has(wrong, 'ok') || !has(syntax, 'err') || errs.length ? 1 : 0;
