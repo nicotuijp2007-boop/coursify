@@ -18,6 +18,11 @@ A PostgreSQL learning platform. SQL runs in the browser via PGlite against synth
 The browser checks need `npm run build && npm run preview` running and, once, `npx playwright install chromium`.
 They write logs and screenshots to `test-results/` (not committed).
 
+## Deploy (Netlify)
+
+`netlify.toml` sets the build: `npm run build`, publish `dist/`, Node 22. Connect the GitHub repo in Netlify;
+the engine assets in `public/pglite/` and `public/data/` are copied into `dist/` by Vite.
+
 ## Layout
 
 - `src/` – React app
