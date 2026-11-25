@@ -8,7 +8,8 @@
     "preview": "vite preview",
     "typecheck": "tsc",
     "test": "vitest run",
-    "test:grading": "node tests/grade-all.mjs"
+    "test:grading": "node tests/grade-all.mjs",
+    "test:grading-engine": "GRADE_ALL=1 vitest run src/lib/grading-all.test.ts"
   },
   "repository": {
     "type": "git",
