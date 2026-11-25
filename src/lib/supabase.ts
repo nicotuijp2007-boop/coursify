@@ -4,8 +4,10 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { Progress } from './progress';
 import type { ProgressBackend, RemoteRow } from './sync';
 
-const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
+// Public by design (access is enforced by row level security). Defaults are built in so every build
+// works, including uploads that leave out .env; VITE_SUPABASE_* in .env or the build overrides them.
+const url = (import.meta.env.VITE_SUPABASE_URL as string | undefined) || 'https://nbeejssppyaikhveogip.supabase.co';
+const key = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined) || 'sb_publishable_VkUsgmOwfB1u5WdYmPY5OQ_-dxTmxqd';
 
 export const supabaseConfigured = Boolean(url && key);
 

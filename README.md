@@ -42,7 +42,7 @@ lessons, interactive blocks and quizzes.
 
 - Supabase project "Dashboard" (`nbeejssppyaikhveogip`), table `public.coursify_progress`: one row per learner
   per course, readable and writable only by that learner (row level security). Schema in `supabase/migrations/`.
-- `.env` holds the project URL and publishable key. Both are public by design; access is enforced by row level security.
+- `src/lib/supabase.ts` has the project URL and publishable key built in (both public by design; access is enforced by row level security). Set `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` to point a build at another project.
 - `src/lib/sync.ts`: every change is kept in the browser at once and sent to the account a second later; failed
   sends are retried and shown in a banner. Progress saved before accounts existed (localStorage key
   `harbourline-sql-course-v1`) is imported into the account on first sign-in.

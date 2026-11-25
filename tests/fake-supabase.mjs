@@ -1,9 +1,8 @@
 // A stand-in for the Supabase project in browser checks: a signed-in test learner and an in-memory
 // coursify_progress table. Every request to the real project is answered here, so checks never touch
 // real accounts. `install(context, { signedIn, rows, failSaves })` returns the table for assertions.
-import fs from 'node:fs';
 
-const env = Object.fromEntries(fs.readFileSync('.env', 'utf8').split('\n').filter(l => /^\w+=/.test(l)).map(l => l.split(/=(.*)/s).slice(0, 2)));
+const env = { VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL || 'https://nbeejssppyaikhveogip.supabase.co' };
 export const SUPABASE_URL = env.VITE_SUPABASE_URL;
 const ref = new URL(SUPABASE_URL).hostname.split('.')[0];
 export const SESSION_KEY = `sb-${ref}-auth-token`;
