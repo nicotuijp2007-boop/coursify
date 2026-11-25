@@ -7,6 +7,7 @@ import { HomePage } from '@/pages/Home';
 import { ModulePage } from '@/pages/Module';
 import { LessonPage, lessonSections } from '@/pages/Lesson';
 import { CheckpointPage } from '@/pages/Checkpoint';
+import { AccountMenu } from '@/components/Account';
 
 const subscribeHash = (cb: () => void) => { window.addEventListener('hashchange', cb); return () => window.removeEventListener('hashchange', cb); };
 const useHash = () => useSyncExternalStore(subscribeHash, () => location.hash);
@@ -53,7 +54,7 @@ function ReadProgress() {
 }
 
 function Sidebar({ route, open, onNavigate }: { route: Route; open: boolean; onNavigate: () => void }) {
-  const { course, P } = useApp();
+  const { meta, course, P } = useApp();
   const curMod = route.kind === 'home' ? null : route.mod;
   const [openMods, setOpenMods] = useState<Set<string>>(() => new Set(curMod ? [curMod.id] : []));
   useEffect(() => { if (curMod) setOpenMods(s => (s.has(curMod.id) ? s : new Set(s).add(curMod.id))); }, [curMod]);
@@ -69,7 +70,7 @@ function Sidebar({ route, open, onNavigate }: { route: Route; open: boolean; onN
     <nav className="sidebar" id="side" aria-label="Course navigation" data-open={open}>
       <div className="sidebar-head">
         <a className="brand" href="#home" onClick={onNavigate}>
-          <div className="mp-eyebrow">Harbourline · SQL &amp; Databases</div>
+          <div className="mp-eyebrow">{meta.brand}</div>
           <div className="brand-title">{curMod ? `Module ${curMod.num} · ${curMod.title}` : 'Course overview'}</div>
         </a>
         <div className="side-progress">
@@ -147,13 +148,14 @@ function Topbar({ route, onMenu, menuOpen }: { route: Route; onMenu: () => void;
       <span className="engine" id="engine" role="status" data-state={status.state} title={engine.fullVersion || undefined}><span className="dot" aria-hidden="true" /><span className="lbl-engine">{status.label}</span></span>
       <button type="button" className="btn-secondary btn-sm" onClick={reset} disabled={status.state === 'unavailable' || status.state === 'starting'} title="Reset database"><RotateCcw size={15} aria-hidden="true" /><span className="lbl">Reset database</span></button>
       <button type="button" className="btn-secondary btn-sm" onClick={copyDataset} title="Copy dataset script"><Copy size={15} aria-hidden="true" /><span className="lbl">Copy dataset script</span></button>
+      <AccountMenu showCourses />
       <ReadProgress />
     </header>
   );
 }
 
 export function App() {
-  const { course, setLast, status } = useApp();
+  const { meta, course, setLast, status } = useApp();
   const hash = useHash();
   const route = parseRoute(course, hash);
   const [menu, setMenu] = useState(false);
@@ -167,9 +169,9 @@ export function App() {
     // Move focus to the new page heading so keyboard and screen-reader users start at the top.
     if (!first.current) mainRef.current?.querySelector<HTMLElement>('h1')?.focus({ preventScroll: true });
     first.current = false;
-    document.title = route.kind === 'home' ? 'SQL & Databases · Harbourline'
-      : route.kind === 'lesson' ? `${route.mod.lessons[route.idx].num} ${route.mod.lessons[route.idx].title} · Harbourline SQL`
-      : route.kind === 'checkpoint' ? `Checkpoint ${route.mod.num} · Harbourline SQL` : `Module ${route.mod.num} · Harbourline SQL`;
+    document.title = route.kind === 'home' ? `${meta.title} · Coursify`
+      : route.kind === 'lesson' ? `${route.mod.lessons[route.idx].num} ${route.mod.lessons[route.idx].title} · ${meta.shortTitle}`
+      : route.kind === 'checkpoint' ? `Checkpoint ${route.mod.num} · ${meta.shortTitle}` : `Module ${route.mod.num} · ${meta.shortTitle}`;
   }, [route.hash]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

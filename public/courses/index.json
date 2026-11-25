@@ -1,0 +1,21 @@
+{
+  "courses": [
+    {
+      "id": "sql",
+      "title": "SQL & Databases with PostgreSQL",
+      "eyebrow": "Harbourline Insurance Brokers",
+      "brand": "Harbourline · SQL & Databases",
+      "shortTitle": "Harbourline SQL",
+      "summary": "Write, check and trust SQL on a broker's real-looking data, and build its reconciliation app along the way.",
+      "lead": "Learn to write, check and trust SQL on one broker whose insurer statements never quite match its own books, and build its reconciliation app along the way.",
+      "pace": "About 2 hours a week",
+      "outcomes": [
+        "write and debug SQL queries, from a single table to window functions;",
+        "design tables, constraints and migrations that keep financial data correct;",
+        "reconcile two sources honestly: matches, differences and ambiguous cases;",
+        "run a small internal app on Supabase with row level security, and change it yourself."
+      ],
+      "legacyStorageKey": "harbourline-sql-course-v1"
+    }
+  ]
+}

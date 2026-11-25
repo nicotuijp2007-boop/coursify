@@ -173,6 +173,7 @@ a.btn-secondary:hover, a.btn-ghost:hover { text-decoration: none; }
 .banner { border-radius: var(--radius-panel); padding: var(--space-4) var(--space-5); margin: var(--space-4) 0; border: 1px solid; display: flex; gap: var(--space-3); align-items: flex-start; }
 .banner[data-tone="err"] { background: var(--error-bg); border-color: var(--error); color: var(--foreground); }
 .banner[data-tone="warn"] { background: var(--warning-bg); border-color: var(--warning); }
+.banner[data-tone="ok"] { background: var(--success-bg); border-color: var(--success); }
 .banner strong { display: block; }
 
 /* ---------------------------------------------------------------- lesson prose (trusted course HTML) */
@@ -424,3 +425,26 @@ dialog.modal h2 { font-size: var(--text-xl); margin-bottom: var(--space-2); }
 .fb-wrap, .res { display: grid; }
 .fb-wrap > * + * { margin-top: 0; }
 .fb-wrap { gap: var(--space-3); }
+
+/* Sign-in, catalogue */
+.auth-card { width: 100%; max-width: 420px; text-align: left; display: grid; gap: var(--space-4); }
+.auth-card h1 { font-size: var(--text-2xl); margin: 0; }
+.auth-card p { margin: 0; }
+.auth-field { display: grid; gap: var(--space-1); font-weight: 600; color: var(--heading); }
+.auth-field small { font-weight: 400; }
+.auth-field .input { width: 100%; }
+.auth-submit { width: 100%; justify-content: center; }
+.auth-msg { padding: var(--space-3) var(--space-4); border-radius: var(--radius-panel); border: 1px solid; }
+.auth-msg[data-tone="err"] { background: var(--error-bg); border-color: var(--error); }
+.auth-msg[data-tone="ok"] { background: var(--brand-primary-50); border-color: transparent; }
+.auth-links { display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); }
+.catalog { max-width: 1040px; margin: 0 auto; padding: var(--space-8) var(--space-5) var(--space-12); }
+.catalog-head { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-8); }
+.catalog-head .grow { flex: 1; }
+.catalog-card h2 { font-size: var(--text-xl); margin: var(--space-2) 0; }
+.account { display: inline-flex; align-items: center; gap: var(--space-2); }
+.account .who { max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 720px) { .account .who { display: none; } }
+.catalog-head h1 { font-size: var(--text-3xl); margin: var(--space-1) 0 0; }
+.catalog-card { display: flex; flex-direction: column; gap: var(--space-2); }
+.catalog-card .catalog-foot { margin-top: auto; padding-top: var(--space-3); display: inline-flex; align-items: center; gap: var(--space-2); font-weight: 600; color: var(--primary); }

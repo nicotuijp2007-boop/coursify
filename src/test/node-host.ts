@@ -33,7 +33,7 @@ export const nodeHost: EngineHost = {
 
 export function loadCourse(): { course: Course; dataset: string } {
   return {
-    course: JSON.parse(fs.readFileSync(path.join(PUB, 'data/course.json'), 'utf8')),
-    dataset: JSON.parse(fs.readFileSync(path.join(PUB, 'data/dataset.json'), 'utf8')).sql,
+    course: JSON.parse(fs.readFileSync(path.join(PUB, 'courses/sql/course.json'), 'utf8')),
+    dataset: JSON.parse(fs.readFileSync(path.join(PUB, 'courses/sql/dataset.json'), 'utf8')).sql,
   };
 }

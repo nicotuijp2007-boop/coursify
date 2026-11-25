@@ -1,4 +1,4 @@
-// Shapes of public/data/course.json as the course uses them. Lesson text fields are trusted HTML
+// Shapes of public/courses/sql/course.json as the course uses them. Lesson text fields are trusted HTML
 // authored in the course build, so they are rendered as HTML, not escaped.
 
 export type CheckMode = 'unordered' | 'ordered' | 'rowcount' | 'manual' | 'js';

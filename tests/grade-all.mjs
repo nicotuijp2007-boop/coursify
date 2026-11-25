@@ -1,15 +1,18 @@
 // Fill every model answer into the real page and press Check. Reports pass/fail per exercise.
 import { chromium } from 'playwright';
 import fs from 'node:fs';
+import { install } from './fake-supabase.mjs';
 // Usage: node tests/grade-all.mjs [pageUrl] [resultFile]
 // Default checks the React course on a running `npm run preview`; pass .../legacy.html for the original.
 const base = process.argv[2] || "http://localhost:4173/";
 const out = process.argv[3] || "test-results/grading.json";
 const root = "public";
 fs.mkdirSync("test-results", { recursive: true });
-const course = JSON.parse(fs.readFileSync(root + '/data/course.json', 'utf8'));
-const b = await chromium.launch();
-const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
+const course = JSON.parse(fs.readFileSync(root + '/courses/sql/course.json', 'utf8'));
+const b = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } });
+await install(ctx); // a signed-in test learner; no real account is used
+const p = await ctx.newPage();
 const errs = []; p.on('pageerror', e => errs.push(e.message));
 await p.goto(base + '#home'); await p.waitForFunction(() => /ready/.test(document.querySelector('#engine')?.textContent || ''), null, { timeout: 60000 });
 const results = [];

@@ -1,8 +1,11 @@
-// App-wide state: course content, the practice engine, saved progress, toasts and the confirm dialog.
+// Course-wide state: course content, the practice engine, saved progress (per account, see sync.ts),
+// toasts and the confirm dialog.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Engine, type EngineStatus } from '@/lib/engine';
 import { browserHost } from '@/lib/browser-host';
-import { browserStorage, loadProgress, saveProgress, type LoadIssue, type Progress } from '@/lib/progress';
+import { browserStorage, type LoadIssue, type Progress } from '@/lib/progress';
+import { ProgressSaver, type CloudState, type Opened, type ProgressBackend } from '@/lib/sync';
+import type { CourseMeta } from '@/lib/catalog';
 import type { Course } from '@/lib/types';
 
 type MapKey = 'ex' | 'drafts' | 'quiz' | 'lessons' | 'practical' | 'kit' | 'proj' | 'quizBest' | 'revealed';
@@ -10,6 +13,7 @@ export type Tone = 'ok' | 'err' | 'info';
 interface Toast { id: number; text: string; tone: Tone }
 
 interface AppValue {
+  meta: CourseMeta;
   course: Course;
   dataset: string;
   engine: Engine;
@@ -19,7 +23,12 @@ interface AppValue {
   setP: <K extends MapKey>(map: K, key: string, value: Progress[K][string] | undefined) => void;
   setLast: (hash: string) => void;
   storageIssue: LoadIssue | null;
+  /** The browser refused to keep a local copy. */
   saveFailed: boolean;
+  /** Whether the latest progress has reached the learner's account. */
+  cloud: CloudState;
+  /** Where the starting progress came from (account, unsent browser copy, imported, new). */
+  source: Opened['source'];
   toast: (text: string, tone?: Tone) => void;
   confirm: (title: string, body: string, action: string) => Promise<boolean>;
 }
@@ -32,27 +41,48 @@ export function useApp(): AppValue {
   return v;
 }
 
-export function AppProvider({ course, dataset, children }: { course: Course; dataset: string; children: ReactNode }) {
+export function AppProvider({ meta, course, dataset, opened, backend, userId, children }: {
+  meta: CourseMeta; course: Course; dataset: string; opened: Opened; backend: ProgressBackend; userId: string; children: ReactNode;
+}) {
   const storage = useMemo(browserStorage, []);
-  const [{ progress: initial, issue }] = useState(() => loadProgress(storage));
-  const [P, setProgress] = useState<Progress>(initial);
+  const [P, setProgress] = useState<Progress>(opened.progress);
   const [saveFailed, setSaveFailed] = useState(false);
+  const [cloud, setCloud] = useState<CloudState>(opened.needsPush ? 'saving' : 'saved');
   const [status, setStatus] = useState<EngineStatus>({ state: 'starting', label: 'Database starting' });
   const engine = useMemo(() => new Engine(browserHost, course.setups, dataset, setStatus), [course, dataset]);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const nextToast = useRef(1);
 
+  const saver = useMemo(() => new ProgressSaver({
+    backend, storage, courseId: meta.id, userId,
+    onChange: s => { setCloud(s.state); setSaveFailed(!s.localOk); },
+  }), [backend, storage, meta.id, userId]);
+
   useEffect(() => {
     engine.start().catch(e => console.error('Database engine failed to start', e));
   }, [engine]);
 
-  // Save after every change. Unusable stored text was already copied to a backup key by loadProgress,
-  // so saving over it is safe. The first render is skipped: nothing has changed yet.
+  // Send unsent changes when the tab is hidden or closed, and as soon as the connection is back.
+  useEffect(() => {
+    const flush = () => saver.flush();
+    const onVis = () => { if (document.visibilityState === 'hidden') flush(); };
+    window.addEventListener('online', flush);
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', onVis);
+    return () => {
+      window.removeEventListener('online', flush); window.removeEventListener('pagehide', flush);
+      document.removeEventListener('visibilitychange', onVis);
+      saver.flush(); // not stop(): StrictMode remounts with the same saver
+    };
+  }, [saver]);
+
+  // Save after every change. The first render only sends progress the account does not have yet
+  // (unsent browser changes or progress from before accounts); otherwise nothing has changed.
   const loaded = useRef(true);
   useEffect(() => {
-    if (loaded.current) { loaded.current = false; return; }
-    setSaveFailed(!saveProgress(storage, P));
-  }, [P, storage]);
+    if (loaded.current) { loaded.current = false; if (opened.needsPush) saver.update(P); return; }
+    saver.update(P);
+  }, [P, saver]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setP = useCallback<AppValue['setP']>((map, key, value) => {
     setProgress(prev => {
@@ -76,7 +106,7 @@ export function AppProvider({ course, dataset, children }: { course: Course; dat
   const confirm = useCallback((title: string, body: string, action: string) =>
     new Promise<boolean>(resolve => setDialog({ title, body, action, resolve })), []);
 
-  const value: AppValue = { course, dataset, engine, status, P, setP, setLast, storageIssue: issue, saveFailed, toast, confirm };
+  const value: AppValue = { meta, course, dataset, engine, status, P, setP, setLast, storageIssue: opened.issue, saveFailed, cloud, source: opened.source, toast, confirm };
 
   return (
     <Ctx.Provider value={value}>

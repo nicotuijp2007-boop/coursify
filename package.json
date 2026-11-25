@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/nicotuijp2007-boop/coursify#readme",
   "dependencies": {
+    "@supabase/supabase-js": "^2.119.2",
     "lucide-react": "^1.63.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

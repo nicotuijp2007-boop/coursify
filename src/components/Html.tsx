@@ -1,4 +1,4 @@
-// Renders trusted course HTML (authored in the course build, see public/data/course.json) and
+// Renders trusted course HTML (authored in the course build, see public/courses/sql/course.json) and
 // mounts interactive blocks, copy buttons for code and download/copy buttons for student-app files.
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';

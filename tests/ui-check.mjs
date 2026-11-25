@@ -2,18 +2,21 @@
 // Usage: node tests/ui-check.mjs [baseUrl] [screenshotDir]
 import { chromium } from 'playwright';
 import fs from 'node:fs';
+import { install, TEST_USER } from './fake-supabase.mjs';
 
 const base = process.argv[2] || 'http://localhost:4173/';
 const shots = process.argv[3] || 'test-results/ui';
 fs.mkdirSync(shots, { recursive: true });
-const KEY = 'harbourline-sql-course-v1';
-const course = JSON.parse(fs.readFileSync('public/data/course.json', 'utf8'));
+const KEY = 'harbourline-sql-course-v1';          // progress saved before accounts existed
+const CACHE = `coursify:sql:${TEST_USER.id}`;       // browser copy of the signed-in learner's progress
+const course = JSON.parse(fs.readFileSync('public/courses/sql/course.json', 'utf8'));
 const results = [];
 const ok = (name, pass, detail = '') => { results.push({ name, pass, detail }); console.log(`${pass ? 'PASS' : 'FAIL'}  ${name}${detail ? ' — ' + detail : ''}`); };
 
-const browser = await chromium.launch();
-async function page(opts = {}, init) {
+const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+async function page(opts = {}, init, fake = {}) {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 860 }, ...opts });
+  ctx.supabase = await install(ctx, fake);
   if (init) await ctx.addInitScript(init.fn, init.arg);
   const p = await ctx.newPage();
   p.setDefaultTimeout(20000);
@@ -45,8 +48,12 @@ async function newResult(card, action) {
   ok('legacy progress: draft restored', draft.startsWith('SELECT policy_number'));
   const m0 = await p.locator('#side .toc-mod').first().textContent();
   ok('legacy progress: module 0 completed in sidebar', /completed/.test(await p.locator('#side .toc-mod').first().innerHTML()), m0);
-  const stored = JSON.parse(await p.evaluate(k => localStorage.getItem(k), KEY));
+  const stored = JSON.parse(await p.evaluate(k => localStorage.getItem(k), CACHE));
   ok('legacy progress: fields kept after saving', stored.quizBest.m00.score === 83 && stored.lessons['m00-l2'] === true);
+  await p.waitForFunction(() => document.querySelector('.banner[data-tone="ok"]'), null, { timeout: 10000 }).catch(() => {});
+  const acct = p.context().supabase.table.get('sql')?.progress;
+  ok('legacy progress: imported into the account', acct?.quizBest?.m00?.score === 83 && acct.ex['m02-l1-e1'] === true);
+  ok('legacy progress: import notice shown', (await p.locator('.banner', { hasText: 'added to your account' }).count()) === 1);
   ok('legacy progress: no page errors', p.errors.length === 0, p.errors.join('; '));
   await p.context().close();
 }
@@ -77,7 +84,7 @@ async function newResult(card, action) {
   await p.reload(); await ready(p);
   const card2 = p.locator(`[data-exid="${e.id}"]`);
   ok('flow: Passed survives reload', (await card2.locator('.status-chip').textContent()).includes('Passed'));
-  const st = JSON.parse(await p.evaluate(k => localStorage.getItem(k), KEY));
+  const st = JSON.parse(await p.evaluate(k => localStorage.getItem(k), CACHE));
   ok('flow: revealed and passed stored separately', st.revealed[e.id] === true && st.ex[e.id] === true);
   // Reset database keeps answers.
   await p.locator('.topbar button', { hasText: 'Reset database' }).click();
@@ -200,7 +207,7 @@ async function newResult(card, action) {
   await p.locator('.score').waitFor();
   ok('quiz: all correct gives 100% passed', /100%/.test(await p.locator('#quizresult').textContent()) && /Passed/.test(await p.locator('#quizresult').textContent()));
   await p.locator('#quizresult').screenshot({ path: `${shots}/quiz-score.png` });
-  const st = JSON.parse(await p.evaluate(k => localStorage.getItem(k), KEY));
+  const st = JSON.parse(await p.evaluate(k => localStorage.getItem(k), CACHE));
   ok('quiz: best score stored', st.quizBest.m01?.score === 100 && st.quizBest.m01.passed === true);
   await p.context().close();
 }
@@ -216,11 +223,11 @@ async function newResult(card, action) {
 }
 {
   const p = await page();
-  await p.route('**/data/course.json', r => r.fulfill({ status: 500, body: 'x' }));
+  await p.route('**/courses/sql/course.json', r => r.fulfill({ status: 500, body: 'x' }));
   await p.goto(base + '#home');
   await p.locator('text=could not load').waitFor({ timeout: 15000 });
   ok('content failure: error screen with Try again', (await p.locator('button', { hasText: 'Try again' }).count()) === 1);
-  await p.unroute('**/data/course.json');
+  await p.unroute('**/courses/sql/course.json');
   await p.locator('button', { hasText: 'Try again' }).click();
   await p.locator('h1', { hasText: 'SQL & Databases' }).waitFor({ timeout: 15000 });
   ok('content failure: Try again recovers', true);
@@ -231,6 +238,88 @@ async function newResult(card, action) {
   await p.goto(base + '#home'); await ready(p);
   const keys = await p.evaluate(() => Object.keys(localStorage));
   ok('malformed storage: warning shown and backup kept', (await p.locator('.banner', { hasText: 'could not be read' }).count()) === 1 && keys.some(k => k.startsWith(KEY + '-backup-')));
+  await p.context().close();
+}
+
+// 10. Accounts: sign-in is required, progress follows the account, failures are visible.
+{
+  const p = await page({}, undefined, { signedIn: false });
+  await p.goto(base + '#m02-l1');
+  await p.locator('h1', { hasText: 'Sign in' }).waitFor();
+  ok('accounts: signed-out visitors see the sign-in form, not the course', (await p.locator('[data-exid]').count()) === 0);
+  await p.fill('input[name=email]', 'learner@example.test'); await p.fill('input[name=password]', 'wrong');
+  await p.locator('button[type=submit]').click();
+  await p.locator('.auth-msg[data-tone=err]').waitFor();
+  ok('accounts: wrong password explained', /do not match/.test(await p.locator('.auth-msg').textContent()));
+  await p.fill('input[name=password]', 'correct-horse');
+  await p.locator('button[type=submit]').click();
+  await ready(p);
+  ok('accounts: signing in opens the page that was asked for', /SELECT/.test(await p.locator('h1').first().textContent()) && p.url().includes('course=sql'));
+  await p.screenshot({ path: `${shots}/signed-in-lesson.png` });
+  await p.locator('button', { hasText: 'Sign out' }).click();
+  await p.locator('h1', { hasText: 'Sign in' }).waitFor();
+  ok('accounts: sign out returns to the sign-in form', true);
+  await p.context().close();
+}
+{
+  const p = await page({}, undefined, { signedIn: false });
+  await p.goto(base);
+  await p.locator('h1', { hasText: 'Sign in' }).waitFor();
+  await p.screenshot({ path: `${shots}/sign-in.png` });
+  await p.locator('button', { hasText: 'Create an account' }).click();
+  ok('accounts: sign-up form asks for a new password', (await p.locator('h1').textContent()).includes('Create') && (await p.locator('input[autocomplete=new-password]').count()) === 1);
+  await p.locator('button', { hasText: 'Back to sign in' }).click();
+  await p.locator('button', { hasText: 'Forgot password?' }).click();
+  ok('accounts: password reset form has no password field', (await p.locator('input[type=password]').count()) === 0);
+  await p.context().close();
+}
+{
+  const p = await page();
+  await p.goto(base);
+  await p.locator('h1', { hasText: 'Your courses' }).waitFor();
+  const cards = await p.locator('.catalog-card').count();
+  ok('catalogue: lists the courses', cards >= 1 && (await p.locator('.catalog-card h2').first().textContent()).includes('SQL'));
+  await p.screenshot({ path: `${shots}/catalogue.png` });
+  await p.locator('.catalog-card').first().click();
+  await ready(p);
+  ok('catalogue: opening a course shows its home page', (await p.locator('h1').first().textContent()).includes('SQL & Databases'));
+  await p.locator('a', { hasText: 'All courses' }).click();
+  await p.locator('h1', { hasText: 'Your courses' }).waitFor();
+  ok('catalogue: All courses returns to the list', true);
+  await p.goto(base + '?course=nope');
+  await p.locator('.banner', { hasText: 'does not exist' }).waitFor();
+  ok('catalogue: unknown course explained', true);
+  await p.context().close();
+}
+{
+  // Progress made in one browser is there in another.
+  const a = await page();
+  await a.goto(base + '#m00-l1'); await ready(a);
+  const mark = a.locator('button', { hasText: /Mark.*done|Mark as done/ }).first();
+  const marked = (await mark.count()) > 0;
+  if (marked) await mark.click();
+  else await a.evaluate(() => { location.hash = 'm00-l2'; });
+  await a.waitForFunction(() => !document.querySelector('.banner[data-tone=warn]'), null, { timeout: 5000 }).catch(() => {});
+  await a.waitForTimeout(1500);
+  const row = a.context().supabase.table.get('sql');
+  ok('sync: progress reaches the account', !!row && (marked ? row.progress.lessons?.['m00-l1'] === true : row.progress.last === 'm00-l2'));
+  const b = await page({}, undefined, { rows: row ? [row] : [] });
+  await b.goto(base + '#home'); await ready(b);
+  ok('sync: another device starts from the account copy', marked ? (await b.locator('#side .toc-tick[data-done=true]').count()) >= 1 : /Continue/.test(await b.locator('.hero').textContent()));
+  await a.context().close(); await b.context().close();
+}
+{
+  const p = await page({}, undefined, { failSaves: true });
+  await p.goto(base + '#m02-l1'); await ready(p);
+  const card = p.locator('[data-exid]').first();
+  await card.locator('textarea').fill('SELECT 1');
+  await p.locator('.banner', { hasText: 'not reached your account' }).waitFor({ timeout: 10000 });
+  ok('sync: a failed save is shown', true);
+  const cached = await p.evaluate(k => localStorage.getItem(k + ':unsynced'), CACHE);
+  ok('sync: unsent changes are kept in the browser', cached === '1');
+  p.context().supabase.failSaves = false;
+  await p.locator('.banner', { hasText: 'not reached your account' }).waitFor({ state: 'detached', timeout: 20000 });
+  ok('sync: retried and saved once the account is reachable', p.context().supabase.table.has('sql'));
   await p.context().close();
 }
 

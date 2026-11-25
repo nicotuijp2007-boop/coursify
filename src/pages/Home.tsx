@@ -8,7 +8,7 @@ import { useApp } from '@/state/app';
 const STATUS_LABEL = { 'not-started': 'Not started', 'in-progress': 'In progress', completed: 'Completed' } as const;
 
 export function HomePage() {
-  const { course, P, engine } = useApp();
+  const { meta, course, P, engine } = useApp();
   const core = course.modules.filter(m => m.kind === 'core');
   const hours = core.reduce((a, m) => a + m.hours, 0);
   const allEx = course.modules.flatMap(m => m.lessons.flatMap(l => l.exercises.filter(graded)));
@@ -35,23 +35,20 @@ export function HomePage() {
   return (
     <>
       <header className="hero">
-        <div className="mp-eyebrow">Harbourline Insurance Brokers · {engine.version || 'PostgreSQL'}</div>
-        <h1 tabIndex={-1}>SQL &amp; Databases with PostgreSQL</h1>
-        <p className="lead">Learn to write, check and trust SQL on one broker whose insurer statements never quite match its own books, and build its reconciliation app along the way.</p>
+        <div className="mp-eyebrow">{meta.eyebrow} · {engine.version || 'PostgreSQL'}</div>
+        <h1 tabIndex={-1}>{meta.title}</h1>
+        <p className="lead">{meta.lead}</p>
         <div className="hero-meta">
           <span className="mp-chip">≈ {hours.toFixed(0)} hours</span>
           <span className="mp-chip" data-tone="muted">{course.modules.length} modules</span>
-          <span className="mp-chip" data-tone="muted">About 2 hours a week</span>
-          <span className="mp-chip" data-tone="muted">Progress saved in this browser</span>
+          {meta.pace && <span className="mp-chip" data-tone="muted">{meta.pace}</span>}
+          <span className="mp-chip" data-tone="muted">Progress saved to your account</span>
         </div>
         <div className="grid-2" style={{ alignItems: 'end' }}>
           <div>
             <strong>After this course you can</strong>
             <ul className="ticks" style={{ marginTop: 'var(--space-2)' }}>
-              <li>write and debug SQL queries, from a single table to window functions;</li>
-              <li>design tables, constraints and migrations that keep financial data correct;</li>
-              <li>reconcile two sources honestly: matches, differences and ambiguous cases;</li>
-              <li>run a small internal app on Supabase with row level security, and change it yourself.</li>
+              {meta.outcomes.map(o => <li key={o}>{o}</li>)}
             </ul>
           </div>
           <div className="card" style={{ background: 'var(--brand-primary-50)', borderColor: 'transparent' }}>
@@ -104,7 +101,7 @@ export function HomePage() {
         </div>
       </section>
       <p className="small muted" style={{ marginTop: 'var(--space-8)' }}>
-        Every example and model answer was checked against {course.engine} on {course.built.slice(0, 10)}. Progress is saved in this browser only.
+        Every example and model answer was checked against {course.engine} on {course.built.slice(0, 10)}. Progress is saved to your account, so you can continue on any device.
       </p>
     </>
   );
