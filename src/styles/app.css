@@ -239,7 +239,7 @@ pre.code, .prose pre {
 .work-prompt { min-width: 0; }
 .work-side { min-width: 0; display: grid; gap: var(--space-3); align-content: start; }
 /* Split workspace: prompt on the left, editor and results on the right, when the card is wide enough. */
-@container (min-width: 760px) {
+@container (min-width: 860px) {
   .work-card[data-split="true"] .work-body { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-6); }
   .work-card[data-split="true"] .work-prompt { position: sticky; top: calc(var(--topbar-h) + var(--space-4)); align-self: start; }
 }
@@ -417,3 +417,10 @@ dialog.modal h2 { font-size: var(--text-xl); margin-bottom: var(--space-2); }
 
 /* Cards wrapped in Reveal keep their vertical rhythm. */
 .mp-reveal + .mp-reveal > .work-card, .mp-reveal + .mp-reveal > .kit { margin-top: var(--space-5); }
+
+/* Single-column grids get an explicit shrinkable track. With the implicit `auto` track, wide result
+   tables and code pushed the editor column past the card edge in the split workspace. */
+.work-body, .work-side, .kit-body, .fb-wrap, .res { grid-template-columns: minmax(0, 1fr); }
+.fb-wrap, .res { display: grid; }
+.fb-wrap > * + * { margin-top: 0; }
+.fb-wrap { gap: var(--space-3); }

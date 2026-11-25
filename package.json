@@ -9,7 +9,8 @@
     "typecheck": "tsc",
     "test": "vitest run",
     "test:grading": "node tests/grade-all.mjs",
-    "test:grading-engine": "GRADE_ALL=1 vitest run src/lib/grading-all.test.ts"
+    "test:grading-engine": "GRADE_ALL=1 vitest run src/lib/grading-all.test.ts",
+    "test:ui": "node tests/ui-check.mjs"
   },
   "repository": {
     "type": "git",

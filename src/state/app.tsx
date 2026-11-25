@@ -96,10 +96,12 @@ export function AppProvider({ course, dataset, children }: { course: Course; dat
 
 function ConfirmDialog({ title, body, action, done }: { title: string; body: string; action: string; done: (v: boolean) => void }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const actionRef = useRef<HTMLButtonElement>(null);
   const opener = useRef<Element | null>(document.activeElement);
   useEffect(() => {
     const d = ref.current!;
     d.showModal();
+    actionRef.current?.focus(); // showModal() would otherwise focus Cancel, the first button
     const back = opener.current;
     return () => { if (back instanceof HTMLElement) back.focus(); };
   }, []);
@@ -110,7 +112,7 @@ function ConfirmDialog({ title, body, action, done }: { title: string; body: str
       <p className="muted">{body}</p>
       <div className="btn-row" style={{ justifyContent: 'flex-end', marginTop: 'var(--space-6)' }}>
         <button type="button" className="btn-ghost" onClick={() => done(false)}>Cancel</button>
-        <button type="button" className="btn-primary" autoFocus onClick={() => done(true)}>{action}</button>
+        <button type="button" className="btn-primary" ref={actionRef} onClick={() => done(true)}>{action}</button>
       </div>
     </dialog>
   );

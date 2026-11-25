@@ -1,6 +1,6 @@
 // Renders trusted course HTML (authored in the course build, see public/data/course.json) and
 // mounts interactive blocks, copy buttons for code and download/copy buttons for student-app files.
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { KitBlock } from '@/kit/blocks';
 import { useApp } from '@/state/app';
@@ -14,6 +14,9 @@ function HtmlInner({ html, className = 'prose' }: { html: string; className?: st
   const ref = useRef<HTMLDivElement>(null);
   const { course, toast } = useApp();
   const [slots, setSlots] = useState<{ el: HTMLElement; id: string }[]>([]);
+  // Same object on every render: React 19 rewrites innerHTML when this object changes identity, which
+  // would wipe the mounted blocks and copy buttons after the first state update.
+  const inner = useMemo(() => ({ __html: html }), [html]);
 
   useEffect(() => {
     const root = ref.current!;
@@ -37,7 +40,7 @@ function HtmlInner({ html, className = 'prose' }: { html: string; className?: st
 
   return (
     <>
-      <div ref={ref} className={className} dangerouslySetInnerHTML={{ __html: html }} />
+      <div ref={ref} className={className} dangerouslySetInnerHTML={inner} />
       {slots.map(s => createPortal(<KitBlock id={s.id} />, s.el, s.id))}
     </>
   );
