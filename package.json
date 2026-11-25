@@ -1,0 +1,42 @@
+{
+  "name": "harbourline-sql-course",
+  "version": "1.0.0",
+  "description": "PostgreSQL learning platform (Harbourline). Course content in public/data, engine in public/pglite.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc",
+    "test": "vitest run",
+    "test:grading": "node tests/grade-all.mjs",
+    "test:grading-engine": "GRADE_ALL=1 vitest run src/lib/grading-all.test.ts",
+    "test:ui": "node tests/ui-check.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nicotuijp2007-boop/coursify.git"
+  },
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/nicotuijp2007-boop/coursify/issues"
+  },
+  "homepage": "https://github.com/nicotuijp2007-boop/coursify#readme",
+  "dependencies": {
+    "lucide-react": "^1.63.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.17",
+    "@types/node": "^22.20.7",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^5.2.0",
+    "playwright": "^1.49.1",
+    "tailwindcss": "^4.1.17",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.8",
+    "vitest": "^3.2.7"
+  },
+  "private": true
+}
