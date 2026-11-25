@@ -17,6 +17,8 @@ export interface CourseMeta {
   /** Intro paragraph on the course home page. */
   lead: string;
   pace?: string;
+  /** Number of modules, shown on the catalogue card (checked against course.json by the tests). */
+  modules?: number;
   outcomes: string[];
   /** localStorage key of progress saved before accounts existed; imported once on first sign-in. */
   legacyStorageKey?: string;

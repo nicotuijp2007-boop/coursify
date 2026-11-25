@@ -438,13 +438,23 @@ dialog.modal h2 { font-size: var(--text-xl); margin-bottom: var(--space-2); }
 .auth-msg[data-tone="err"] { background: var(--error-bg); border-color: var(--error); }
 .auth-msg[data-tone="ok"] { background: var(--brand-primary-50); border-color: transparent; }
 .auth-links { display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); }
-.catalog { max-width: 1040px; margin: 0 auto; padding: var(--space-8) var(--space-5) var(--space-12); }
-.catalog-head { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-8); }
-.catalog-head .grow { flex: 1; }
-.catalog-card h2 { font-size: var(--text-xl); margin: var(--space-2) 0; }
 .account { display: inline-flex; align-items: center; gap: var(--space-2); }
 .account .who { max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 720px) { .account .who { display: none; } }
-.catalog-head h1 { font-size: var(--text-3xl); margin: var(--space-1) 0 0; }
-.catalog-card { display: flex; flex-direction: column; gap: var(--space-2); }
-.catalog-card .catalog-foot { margin-top: auto; padding-top: var(--space-3); display: inline-flex; align-items: center; gap: var(--space-2); font-weight: 600; color: var(--primary); }
+
+/* Course catalogue */
+.catalog-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); max-width: 1200px; margin: 0 auto; padding: var(--space-5) var(--space-6) 0; }
+.catalog-brand { font-weight: 700; color: var(--heading); letter-spacing: -0.01em; }
+.catalog { max-width: 1200px; margin: 0 auto; padding: var(--space-8) var(--space-6) var(--space-16); }
+.catalog h1 { font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.25rem); line-height: 1.1; margin: 0; letter-spacing: -0.02em; }
+.catalog-lead { font-size: var(--text-lg); color: var(--secondary); margin: var(--space-3) 0 var(--space-10); }
+.catalog-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-6); grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 1000px) { .catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .catalog-grid { grid-template-columns: 1fr; } .catalog, .catalog-bar { padding-left: var(--space-4); padding-right: var(--space-4); } }
+.catalog-card { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-4); background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-panel); padding: var(--space-8); }
+.catalog-card h2 { font-size: var(--text-xl); line-height: 1.25; margin: 0; color: var(--heading); }
+.catalog-chip { margin-top: calc(-1 * var(--space-1)); }
+.catalog-summary { color: var(--secondary); margin: 0; }
+.catalog-count { margin: 0; color: var(--foreground); }
+.catalog-open { margin-top: auto; height: auto; padding: var(--space-3) var(--space-5); font-size: var(--text-lg); }
+.catalog-open:hover { text-decoration: none; }

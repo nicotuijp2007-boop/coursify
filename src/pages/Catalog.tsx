@@ -1,6 +1,5 @@
 // All courses, with where the learner stands in each.
 import { useEffect, useState } from 'react';
-import { ArrowRight } from 'lucide-react';
 import { courseHref, type Catalog } from '@/lib/catalog';
 import { supabase } from '@/lib/supabase';
 import { AccountMenu } from '@/components/Account';
@@ -15,32 +14,31 @@ export function CatalogPage({ catalog, unknown }: { catalog: Catalog; unknown?: 
   }, []);
   const date = (iso: string) => new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
   return (
-    <main className="catalog" id="content">
-      <div className="catalog-head">
-        <div className="grow">
-          <div className="mp-eyebrow">Coursify</div>
-          <h1 tabIndex={-1}>Your courses</h1>
-        </div>
+    <div className="catalog-page">
+      <header className="catalog-bar">
+        <span className="catalog-brand">Coursify</span>
         <AccountMenu />
-      </div>
-      {unknown && (
-        <div className="banner" data-tone="warn" role="alert"><div><strong>That course does not exist.</strong>There is no course called “{unknown}”. Pick one below.</div></div>
-      )}
-      <div className="mod-grid">
-        {catalog.courses.map(c => (
-          <a key={c.id} className="card module-card catalog-card" href={courseHref(c.id)}>
-            <div className="top">
-              <span className="mp-chip" data-tone={studied[c.id] ? 'warn' : 'muted'}>
-                {studied[c.id] ? `Last studied ${date(studied[c.id])}` : 'Not started'}
-              </span>
-            </div>
-            <div className="mp-eyebrow">{c.eyebrow}</div>
-            <h2>{c.title}</h2>
-            <p>{c.summary}</p>
-            <div className="catalog-foot"><span>{studied[c.id] ? "Continue" : "Start"}</span><ArrowRight size={16} aria-hidden="true" /></div>
-          </a>
-        ))}
-      </div>
-    </main>
+      </header>
+      <main className="catalog" id="content">
+        <h1 tabIndex={-1}>Courses</h1>
+        <p className="catalog-lead">Choose a course to get started.</p>
+        {unknown && (
+          <div className="banner" data-tone="warn" role="alert"><div><strong>That course does not exist.</strong>There is no course called “{unknown}”. Pick one below.</div></div>
+        )}
+        <ul className="catalog-grid" role="list">
+          {catalog.courses.map(c => (
+            <li key={c.id} className="catalog-card">
+              <h2 id={`course-${c.id}`}>{c.title}</h2>
+              {studied[c.id] && <span className="mp-chip catalog-chip">Last studied {date(studied[c.id])}</span>}
+              <p className="catalog-summary">{c.summary}</p>
+              {c.modules ? <p className="catalog-count">{c.modules} modules</p> : null}
+              <a className="btn-primary catalog-open" href={courseHref(c.id)} aria-describedby={`course-${c.id}`}>
+                {studied[c.id] ? 'Continue course' : 'Open course'}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </main>
+    </div>
   );
 }

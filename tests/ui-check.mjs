@@ -276,15 +276,15 @@ async function newResult(card, action) {
 {
   const p = await page();
   await p.goto(base);
-  await p.locator('h1', { hasText: 'Your courses' }).waitFor();
+  await p.locator('h1', { hasText: 'Courses' }).waitFor();
   const cards = await p.locator('.catalog-card').count();
-  ok('catalogue: lists the courses', cards >= 1 && (await p.locator('.catalog-card h2').first().textContent()).includes('SQL'));
+  ok('catalogue: lists the courses', cards >= 1 && (await p.locator('.catalog-card h2').first().textContent()).includes('SQL') && /\d+ modules/.test(await p.locator('.catalog-card').first().textContent()));
   await p.screenshot({ path: `${shots}/catalogue.png` });
-  await p.locator('.catalog-card').first().click();
+  await p.locator('.catalog-card a', { hasText: 'Open course' }).first().click();
   await ready(p);
   ok('catalogue: opening a course shows its home page', (await p.locator('h1').first().textContent()).includes('SQL & Databases'));
   await p.locator('a', { hasText: 'All courses' }).click();
-  await p.locator('h1', { hasText: 'Your courses' }).waitFor();
+  await p.locator('h1', { hasText: 'Courses' }).waitFor();
   ok('catalogue: All courses returns to the list', true);
   await p.goto(base + '?course=nope');
   await p.locator('.banner', { hasText: 'does not exist' }).waitFor();

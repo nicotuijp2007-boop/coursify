@@ -15,7 +15,8 @@
         "reconcile two sources honestly: matches, differences and ambiguous cases;",
         "run a small internal app on Supabase with row level security, and change it yourself."
       ],
-      "legacyStorageKey": "harbourline-sql-course-v1"
+      "legacyStorageKey": "harbourline-sql-course-v1",
+      "modules": 15
     }
   ]
 }
