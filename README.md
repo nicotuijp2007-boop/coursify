@@ -49,6 +49,20 @@ lessons, interactive blocks and quizzes.
 - Supabase Auth settings: confirmation and password-reset links return to the page they were requested from, so
   the site's address must be listed under Authentication → URL Configuration → Redirect URLs.
 
+## Final exam and certificate
+
+- Each course can have a final exam (`coursify_exams` in Supabase). It opens when every core module's
+  checkpoint is passed, draws `questions_per_topic` new questions from every module, has a time limit, a pass
+  mark and a waiting time before a retake (SQL course: 30 questions, 60 minutes, 75%, 24 hours).
+- Questions and answers live only in `coursify_exam_questions`, which no learner can read. Starting, autosaving
+  and grading are SQL functions (`coursify_exam_start`, `_save`, `_submit`), so answers never reach the browser
+  and a score can't be changed. Answers sent after the time limit are ignored.
+- SQL questions of kind `value` ask the learner to query the practice database and enter the result.
+- A pass issues a certificate (`coursify_certificates`) with a code; anyone can check it at `/?verify=<code>`
+  without an account. The certificate page prints on one A4 page.
+- The question pool is **not** in this repository, because the repository is public. Edit it in the Supabase
+  table editor, or keep the source file somewhere private.
+
 ## Layout
 
 - `src/` – React app
@@ -59,6 +73,7 @@ lessons, interactive blocks and quizzes.
   - `src/lib/compare.ts` – result comparison rules; `src/lib/progress.ts` – progress format and validation
   - `src/lib/sync.ts` – progress per account and course; `src/lib/supabase.ts` – Supabase client
   - `src/pages/Auth.tsx`, `src/pages/Catalog.tsx` – sign-in and course list; `src/state/auth.tsx` – session
+  - `src/pages/Exam.tsx`, `src/pages/Certificate.tsx`, `src/pages/Verify.tsx` – final exam, certificate, public check; `src/lib/exam.ts` – exam calls
 - `public/legacy.html` – the original single-file course, kept for comparison during the migration
 - `public/courses/sql/` – course content (`course.json`) and dataset (`dataset.json`)
 - `public/pglite/` – bundled database engine; `public/jsrunner.js` – local Supabase-style adapter for the JavaScript exercises

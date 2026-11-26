@@ -6,6 +6,7 @@ import { AppProvider } from './state/app';
 import { AuthProvider, useAuth } from './state/auth';
 import { AuthPage, NewPasswordPage } from './pages/Auth';
 import { CatalogPage } from './pages/Catalog';
+import { VerifyPage } from './pages/Verify';
 import { courseFile, parseCatalog, selectedCourseId, type Catalog, type CourseMeta } from './lib/catalog';
 import { supabase, supabaseBackend, supabaseConfigured } from './lib/supabase';
 import { openProgress, type Opened } from './lib/sync';
@@ -111,6 +112,9 @@ function Gate() {
 }
 
 function Root() {
+  // Certificate checks are public: no account needed.
+  const verify = new URLSearchParams(location.search).get('verify');
+  if (verify) return <VerifyPage code={verify} />;
   if (!supabaseConfigured) return <BootCard label="Coursify" error="Sign-in is not configured: VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY are missing from this build." />;
   return <AuthProvider fallback={<BootCard label="Your account" />}><Gate /></AuthProvider>;
 }

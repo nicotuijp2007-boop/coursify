@@ -6,10 +6,14 @@ import { AccountMenu } from '@/components/Account';
 
 export function CatalogPage({ catalog, unknown }: { catalog: Catalog; unknown?: string | null }) {
   const [studied, setStudied] = useState<Record<string, string>>({});
+  const [certified, setCertified] = useState<Record<string, number>>({});
   useEffect(() => {
     document.title = 'Courses · Coursify';
     supabase.from('coursify_progress').select('course_id, updated_at').then(({ data }) => {
       if (data) setStudied(Object.fromEntries(data.map(r => [r.course_id as string, r.updated_at as string])));
+    });
+    supabase.from('coursify_certificates').select('course_id, score').then(({ data }) => {
+      if (data) setCertified(Object.fromEntries(data.map(r => [r.course_id as string, r.score as number])));
     });
   }, []);
   const date = (iso: string) => new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
@@ -29,7 +33,9 @@ export function CatalogPage({ catalog, unknown }: { catalog: Catalog; unknown?: 
           {catalog.courses.map(c => (
             <li key={c.id} className="catalog-card">
               <h2 id={`course-${c.id}`}>{c.title}</h2>
-              {studied[c.id] && <span className="mp-chip catalog-chip">Last studied {date(studied[c.id])}</span>}
+              {certified[c.id] !== undefined
+                ? <span className="mp-chip catalog-chip" data-tone="ok">Certified · {certified[c.id]}%</span>
+                : studied[c.id] && <span className="mp-chip catalog-chip">Last studied {date(studied[c.id])}</span>}
               <p className="catalog-summary">{c.summary}</p>
               {c.modules ? <p className="catalog-count">{c.modules} modules</p> : null}
               <a className="btn-primary catalog-open" href={courseHref(c.id)} aria-describedby={`course-${c.id}`}>

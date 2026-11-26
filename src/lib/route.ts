@@ -1,17 +1,20 @@
 // Hash routes, unchanged from the original course: #home, #<moduleId>, #<lessonId> (e.g. #m02-l1),
-// #<moduleId>-cp. Anything unknown falls back to home, as before.
+// #<moduleId>-cp, plus #exam (final exam) and #certificate. Anything unknown falls back to home, as before.
 import type { Course, Module } from './types';
 
 export type Route =
   | { kind: 'home'; hash: string }
   | { kind: 'module'; hash: string; mod: Module }
   | { kind: 'lesson'; hash: string; mod: Module; idx: number }
-  | { kind: 'checkpoint'; hash: string; mod: Module };
+  | { kind: 'checkpoint'; hash: string; mod: Module }
+  | { kind: 'exam'; hash: string }
+  | { kind: 'certificate'; hash: string };
 
 export function parseRoute(course: Course, rawHash: string): Route {
   const hash = rawHash.replace(/^#/, '') || 'home';
   const byId = (id: string) => course.modules.find(m => m.id === id);
   if (hash === 'home') return { kind: 'home', hash };
+  if (hash === 'exam' || hash === 'certificate') return { kind: hash, hash };
   const asMod = byId(hash);
   if (asMod) return { kind: 'module', hash, mod: asMod };
   const m = hash.match(/^(m\w+?)-(l(\d+)|cp)$/);

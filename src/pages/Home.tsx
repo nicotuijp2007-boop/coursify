@@ -1,4 +1,5 @@
-import { ArrowRight, Play } from 'lucide-react';
+import { ArrowRight, GraduationCap, Lock, Play } from 'lucide-react';
+import { examReadiness } from '@/lib/exam';
 import { Banners } from '@/components/Banners';
 import { Reveal } from '@/components/ui';
 import { courseProgress, graded, moduleProgress, moduleStatus, nextLesson } from '@/lib/course-progress';
@@ -19,7 +20,7 @@ export function HomePage() {
   const total = courseProgress(course, P);
   // "Continue where you left off": the last lesson or checkpoint visited, else the first lesson not done.
   const last = P.last ? parseRoute(course, P.last) : null;
-  const resume = last && last.kind !== 'home' && last.kind !== 'module' ? last : null;
+  const resume = last && (last.kind === 'lesson' || last.kind === 'checkpoint') ? last : null;
   const next = nextLesson(course, P);
   const started = doneL > 0 || !!resume;
   const target = resume ? resume.hash : started ? next.lesson.id : next.mod.id;
@@ -100,9 +101,30 @@ export function HomePage() {
           })}
         </div>
       </section>
+      <section className="section" aria-labelledby="exam-h">
+        <div className="section-head" style={{ gridTemplateColumns: '1fr' }}><h2 id="exam-h">Final exam and certificate</h2></div>
+        <ExamTeaser />
+      </section>
       <p className="small muted" style={{ marginTop: 'var(--space-8)' }}>
         Every example and model answer was checked against {course.engine} on {course.built.slice(0, 10)}. Progress is saved to your account, so you can continue on any device.
       </p>
     </>
+  );
+}
+
+function ExamTeaser() {
+  const { course, P } = useApp();
+  const { ready, missing } = examReadiness(course, P);
+  return (
+    <div className="card exam-card">
+      <div className="exam-state" data-tone={ready ? 'ok' : 'muted'}>
+        {ready ? <GraduationCap size={22} aria-hidden="true" /> : <Lock size={20} aria-hidden="true" />}
+        <div>
+          <strong>{ready ? 'You can take the final exam' : `Opens after every checkpoint is passed (${missing.length} to go)`}</strong>
+          <p className="muted">New questions from every module, some answered by querying the practice database. Pass it to get a certificate anyone can check.</p>
+        </div>
+      </div>
+      <a className={ready ? 'btn-primary' : 'btn-secondary'} href="#exam">{ready ? 'Go to the exam' : 'See how the exam works'}</a>
+    </div>
   );
 }

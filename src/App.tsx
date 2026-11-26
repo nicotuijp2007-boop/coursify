@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { Check, ChevronRight, Copy, House, Menu, RotateCcw } from 'lucide-react';
+import { Award, Check, ChevronRight, Copy, GraduationCap, House, Lock, Menu, RotateCcw } from 'lucide-react';
 import { parseRoute, stateLesson, type Route } from '@/lib/route';
 import { courseProgress, moduleProgress, moduleStatus } from '@/lib/course-progress';
 import { useApp } from '@/state/app';
@@ -8,6 +8,9 @@ import { ModulePage } from '@/pages/Module';
 import { LessonPage, lessonSections } from '@/pages/Lesson';
 import { CheckpointPage } from '@/pages/Checkpoint';
 import { AccountMenu } from '@/components/Account';
+import { ExamPage } from '@/pages/Exam';
+import { CertificatePage } from '@/pages/Certificate';
+import { examReadiness } from '@/lib/exam';
 
 const subscribeHash = (cb: () => void) => { window.addEventListener('hashchange', cb); return () => window.removeEventListener('hashchange', cb); };
 const useHash = () => useSyncExternalStore(subscribeHash, () => location.hash);
@@ -55,7 +58,7 @@ function ReadProgress() {
 
 function Sidebar({ route, open, onNavigate }: { route: Route; open: boolean; onNavigate: () => void }) {
   const { meta, course, P } = useApp();
-  const curMod = route.kind === 'home' ? null : route.mod;
+  const curMod = 'mod' in route ? route.mod : null;
   const [openMods, setOpenMods] = useState<Set<string>>(() => new Set(curMod ? [curMod.id] : []));
   useEffect(() => { if (curMod) setOpenMods(s => (s.has(curMod.id) ? s : new Set(s).add(curMod.id))); }, [curMod]);
   const sections = route.kind === 'lesson' ? lessonSections(route.mod.lessons[route.idx]) : [];
@@ -123,6 +126,13 @@ function Sidebar({ route, open, onNavigate }: { route: Route; open: boolean; onN
             </ol>
           </div>
         ))}
+        <div className="toc-group">Finish</div>
+        <ol className="toc">
+          <li><a className="toc-link" href="#exam" aria-current={cur('exam')} onClick={onNavigate}>
+            <span className="toc-num">{examReadiness(course, P).ready ? <GraduationCap size={13} aria-hidden="true" /> : <Lock size={12} aria-hidden="true" />}</span>Final exam</a></li>
+          <li><a className="toc-link" href="#certificate" aria-current={cur('certificate')} onClick={onNavigate}>
+            <span className="toc-num"><Award size={13} aria-hidden="true" /></span>Certificate</a></li>
+        </ol>
       </div>
     </nav>
   );
@@ -170,6 +180,8 @@ export function App() {
     if (!first.current) mainRef.current?.querySelector<HTMLElement>('h1')?.focus({ preventScroll: true });
     first.current = false;
     document.title = route.kind === 'home' ? `${meta.title} · Coursify`
+      : route.kind === 'exam' ? `Final exam · ${meta.shortTitle}`
+      : route.kind === 'certificate' ? `Certificate · ${meta.shortTitle}`
       : route.kind === 'lesson' ? `${route.mod.lessons[route.idx].num} ${route.mod.lessons[route.idx].title} · ${meta.shortTitle}`
       : route.kind === 'checkpoint' ? `Checkpoint ${route.mod.num} · ${meta.shortTitle}` : `Module ${route.mod.num} · ${meta.shortTitle}`;
   }, [route.hash]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -202,6 +214,8 @@ export function App() {
             {route.kind === 'module' && <ModulePage mod={route.mod} />}
             {route.kind === 'lesson' && <LessonPage mod={route.mod} idx={route.idx} />}
             {route.kind === 'checkpoint' && <CheckpointPage mod={route.mod} />}
+            {route.kind === 'exam' && <ExamPage />}
+            {route.kind === 'certificate' && <CertificatePage />}
           </div>
         </main>
       </div>

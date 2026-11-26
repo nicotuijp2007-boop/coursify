@@ -2,7 +2,7 @@
 // Usage: node tests/ui-check.mjs [baseUrl] [screenshotDir]
 import { chromium } from 'playwright';
 import fs from 'node:fs';
-import { install, TEST_USER } from './fake-supabase.mjs';
+import { install, TEST_USER, EXAM_KEY } from './fake-supabase.mjs';
 
 const base = process.argv[2] || 'http://localhost:4173/';
 const shots = process.argv[3] || 'test-results/ui';
@@ -321,6 +321,96 @@ async function newResult(card, action) {
   await p.locator('.banner', { hasText: 'not reached your account' }).waitFor({ state: 'detached', timeout: 20000 });
   ok('sync: retried and saved once the account is reachable', p.context().supabase.table.has('sql'));
   await p.context().close();
+}
+
+// 11. Final exam and certificate.
+const allPassed = { ex: {}, drafts: {}, quiz: {}, lessons: {}, kit: {}, proj: {}, quizBest: {}, revealed: {},
+  practical: Object.fromEntries(course.modules.filter(m => m.checkpoint?.practical).map(m => [m.checkpoint.practical.id, true])) };
+const doneRow = [{ course_id: 'sql', progress: allPassed, updated_at: new Date().toISOString() }];
+{
+  const p = await page();
+  await p.goto(base + '#exam'); await ready(p);
+  await p.locator('h2', { hasText: 'Finish the course first' }).waitFor();
+  ok('exam: locked until every checkpoint is passed', (await p.locator('.exam-missing li').count()) === course.modules.filter(m => m.kind === 'core' && m.checkpoint?.practical).length
+    && (await p.locator('button', { hasText: 'Start the exam' }).count()) === 0);
+  ok('exam: sidebar shows the exam and certificate', (await p.locator('#side a[href="#exam"]').count()) === 1 && (await p.locator('#side a[href="#certificate"]').count()) === 1);
+  await p.goto(base + '#certificate');
+  await p.locator('h2', { hasText: 'No certificate yet' }).waitFor();
+  ok('certificate: none before passing', true);
+  await p.context().close();
+}
+{
+  // Failing attempt: result per module and a retake time.
+  const p = await page({}, undefined, { rows: doneRow });
+  await p.goto(base + '#exam'); await ready(p);
+  await p.locator('button', { hasText: 'Start the exam' }).click();
+  await p.locator('.auth-msg[data-tone=err]').waitFor();
+  ok('exam: asks for a name for the certificate', /full name/i.test(await p.locator('.auth-msg').textContent()));
+  await p.fill('#exam-full-name', 'Anna de Vries');
+  await p.locator('button', { hasText: 'Start the exam' }).click();
+  await p.locator('.exam-q').first().waitFor();
+  ok('exam: questions shown with timer', (await p.locator('.exam-q').count()) === 3 && /left/.test(await p.locator('.exam-timer').textContent()));
+  ok('exam: questions carry no answers', !(await p.content()).includes('"correct"'));
+  await p.locator('.exam-q[data-qid="sql:t-single"] .exam-opt').nth(0).click();
+  await p.waitForTimeout(1600);
+  ok('exam: answers autosave', (p.context().supabase.examSaves || 0) >= 1);
+  await p.locator('.exam-bar button', { hasText: 'Hand in' }).click();
+  await p.locator('dialog.modal').waitFor();
+  ok('exam: warns about unanswered questions', /2 question/.test(await p.locator('dialog.modal').textContent()));
+  await p.locator('dialog.modal button', { hasText: 'Hand in' }).click();
+  await p.locator('.exam-result').waitFor();
+  ok('exam: failed result with retake time and module breakdown', /not passed/.test(await p.locator('.exam-result h2').textContent())
+    && /try again from/.test(await p.locator('.exam-result').textContent()) && (await p.locator('.exam-topics li').count()) === 2);
+  await p.screenshot({ path: `${shots}/exam-failed.png`, fullPage: true });
+  await p.context().close();
+}
+{
+  // Passing attempt, certificate, public verification.
+  const p = await page({}, undefined, { rows: doneRow, fullName: 'Anna de Vries' });
+  await p.goto(base + '#exam'); await ready(p);
+  ok('exam: name remembered', (await p.inputValue('#exam-full-name')) === 'Anna de Vries');
+  await p.locator('button', { hasText: 'Start the exam' }).click();
+  await p.locator('.exam-q').first().waitFor();
+  await p.locator('.exam-q[data-qid="sql:t-single"] .exam-opt').nth(EXAM_KEY['sql:t-single']).click();
+  for (const i of EXAM_KEY['sql:t-multi']) await p.locator('.exam-q[data-qid="sql:t-multi"] .exam-opt').nth(i).click();
+  const vq = p.locator('.exam-q[data-qid="sql:t-value"]');
+  await vq.locator('summary').click();
+  await vq.locator('textarea').fill('SELECT count(*) FROM policies WHERE end_date IS NULL');
+  await vq.locator('button', { hasText: 'Run' }).click();
+  await vq.locator('.res td, table td', { hasText: '155' }).first().waitFor({ timeout: 30000 });
+  ok('exam: practice database runs queries on the course data', true);
+  await vq.locator('input[inputmode=decimal]').fill('155');
+  await p.screenshot({ path: `${shots}/exam-running.png`, fullPage: true });
+  await p.locator('.exam-bar button', { hasText: 'Hand in' }).click();
+  await p.locator('dialog.modal button', { hasText: 'Hand in' }).click();
+  await p.locator('.exam-result').waitFor();
+  ok('exam: passed with 100%', /Passed with 100%/.test(await p.locator('.exam-result h2').textContent()));
+  await p.locator('a', { hasText: 'View your certificate' }).first().click();
+  await p.locator('.certificate').waitFor();
+  const cert = await p.locator('.certificate').textContent();
+  ok('certificate: name, course, score and code', cert.includes('Anna de Vries') && cert.includes('SQL & Databases') && cert.includes('100%') && cert.includes('CFY-TEST-0001'));
+  await p.screenshot({ path: `${shots}/certificate.png`, fullPage: true });
+  await p.emulateMedia({ media: 'print' });
+  ok('certificate: printing hides the app around it', !(await p.locator('#side').isVisible()) && !(await p.locator('.topbar').isVisible()) && await p.locator('.certificate').isVisible());
+  await p.emulateMedia({ media: 'screen' });
+  await p.goto(base + '#exam');
+  await p.locator('h2', { hasText: 'You passed' }).waitFor();
+  ok('exam: after passing, no second attempt is offered', (await p.locator('button', { hasText: 'Start the exam' }).count()) === 0);
+  await p.goto(base);
+  await p.locator('.catalog-card').first().waitFor();
+  ok('catalogue: shows the course as certified', /Certified · 100%/.test(await p.locator('.catalog-card').first().textContent()));
+  const certs = p.context().supabase.certificates;
+  await p.context().close();
+
+  const v = await page({}, undefined, { signedIn: false, certificates: certs });
+  await v.goto(base + '?verify=cfy-test-0001');
+  await v.locator('.banner', { hasText: 'genuine' }).waitFor();
+  ok('verify: anyone can check a code without signing in', (await v.locator('.certificate').textContent()).includes('Anna de Vries') && (await v.locator('input[name=password]').count()) === 0);
+  await v.screenshot({ path: `${shots}/verify.png`, fullPage: true });
+  await v.goto(base + '?verify=CFY-NOPE-0000');
+  await v.locator('.banner', { hasText: 'No certificate' }).waitFor();
+  ok('verify: unknown code explained', true);
+  await v.context().close();
 }
 
 await browser.close();
