@@ -3,3 +3,6 @@ dist/
 test-results/
 *.zip
 .netlify/
+
+# Course builder: your source documents, drafts and exam answers. Never commit these.
+course-src/

@@ -20,6 +20,9 @@ export interface CourseMeta {
   /** Number of modules, shown on the catalogue card (checked against course.json by the tests). */
   modules?: number;
   outcomes: string[];
+  /** 'sql' (default): exercises run on the in-browser PostgreSQL. 'general': reading, worked examples,
+   *  written exercises learners compare with a model answer, and quizzes; no database. */
+  kind?: 'sql' | 'general';
   /** localStorage key of progress saved before accounts existed; imported once on first sign-in. */
   legacyStorageKey?: string;
 }

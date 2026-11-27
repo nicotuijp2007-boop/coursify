@@ -9,7 +9,7 @@ import { useApp } from '@/state/app';
 const STATUS_LABEL = { 'not-started': 'Not started', 'in-progress': 'In progress', completed: 'Completed' } as const;
 
 export function HomePage() {
-  const { meta, course, P, engine } = useApp();
+  const { meta, course, P, engine, isSql } = useApp();
   const core = course.modules.filter(m => m.kind === 'core');
   const hours = core.reduce((a, m) => a + m.hours, 0);
   const allEx = course.modules.flatMap(m => m.lessons.flatMap(l => l.exercises.filter(graded)));
@@ -36,7 +36,7 @@ export function HomePage() {
   return (
     <>
       <header className="hero">
-        <div className="mp-eyebrow">{meta.eyebrow} · {engine.version || 'PostgreSQL'}</div>
+        <div className="mp-eyebrow">{meta.eyebrow}{isSql ? ` · ${engine.version || 'PostgreSQL'}` : ''}</div>
         <h1 tabIndex={-1}>{meta.title}</h1>
         <p className="lead">{meta.lead}</p>
         <div className="hero-meta">
@@ -106,7 +106,7 @@ export function HomePage() {
         <ExamTeaser />
       </section>
       <p className="small muted" style={{ marginTop: 'var(--space-8)' }}>
-        Every example and model answer was checked against {course.engine} on {course.built.slice(0, 10)}. Progress is saved to your account, so you can continue on any device.
+        {isSql ? `Every example and model answer was checked against ${course.engine} on ${course.built.slice(0, 10)}.` : `Built from the course material on ${course.built.slice(0, 10)}.`} Progress is saved to your account, so you can continue on any device.
       </p>
     </>
   );
@@ -121,7 +121,7 @@ function ExamTeaser() {
         {ready ? <GraduationCap size={22} aria-hidden="true" /> : <Lock size={20} aria-hidden="true" />}
         <div>
           <strong>{ready ? 'You can take the final exam' : `Opens after every checkpoint is passed (${missing.length} to go)`}</strong>
-          <p className="muted">New questions from every module, some answered by querying the practice database. Pass it to get a certificate anyone can check.</p>
+          <p className="muted">New questions from every module{useApp().isSql ? ', some answered by querying the practice database' : ''}. Pass it to get a certificate anyone can check.</p>
         </div>
       </div>
       <a className={ready ? 'btn-primary' : 'btn-secondary'} href="#exam">{ready ? 'Go to the exam' : 'See how the exam works'}</a>

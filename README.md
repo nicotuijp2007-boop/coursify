@@ -27,16 +27,47 @@ They write logs and screenshots to `test-results/` (not committed).
 `netlify.toml` sets the build: `npm run build`, publish `dist/`, Node 22. Connect the GitHub repo in Netlify;
 the engine assets in `public/pglite/` and `public/courses/sql/` are copied into `dist/` by Vite.
 
-## Adding a course
+## Adding a course with the course builder
+
+The builder turns your documents into a course in the site's format, with checkpoints and final-exam questions.
+Everything about one course lives in `course-src/<id>/`, which is **never committed** (your documents and the exam
+answers stay private; this repository is public).
+
+```bash
+npm run course -- new risk-basics       # creates course-src/risk-basics/ with brief.yaml and sources/
+# edit brief.yaml, put your PDF, Word, Markdown or text files in course-src/risk-basics/sources/
+npm run course -- plan risk-basics      # reads the material and designs the outline (Claude Opus 5.5)
+# read work/outline.md; change work/outline.json if you want (titles, order, what each lesson covers)
+npm run course -- build risk-basics     # writes lessons, checkpoints and exam questions (Claude Sonnet 5.5)
+# read out/report.md: use of your material, gaps, problems repaired, cost
+npm run course -- install risk-basics   # copies the course into public/courses/ and the course list
+```
+
+Then run `course-src/<id>/out/exam-seed.sql` in the Supabase SQL editor (it loads the exam), and deploy.
+
+- Needs an Anthropic API key in `ANTHROPIC_API_KEY`. A course of ~300 pages costs roughly $10–15 to build.
+- Steps: read sources (PDFs via Claude Haiku 5.5) → outline (Opus 5.5) → lessons in parallel, then checkpoints and
+  exam questions (Sonnet 5.5). Your material is sent once and cached, so 40 lessons don't each pay to read it.
+- Checks without a model: counts and shapes, exactly one right answer per quiz question, only cited sources that
+  exist, HTML cleaned to a short allow-list. A step that fails a check gets one repair attempt, then stops with
+  the problems listed. Finished steps are saved; run the command again to continue.
+- Not checked automatically yet: whether every claim matches the material, and whether questions are fair.
+  Read the lessons in the preview before you publish.
+- Models per step can be changed with `COURSE_MODEL_ARCHITECT`, `COURSE_MODEL_WRITER`, `COURSE_MODEL_EXAMINER`,
+  `COURSE_MODEL_EXTRACT`. Code: `builder/` (tests run the whole pipeline with a stand-in model: `npm test`).
+
+Built courses are "general" courses (`kind: "general"` in the course list): reading, worked examples, written
+exercises the learner compares with a model answer, checkpoint quizzes, and the final exam. They have no database.
+
+### Adding a course by hand
 
 1. Create `public/courses/<id>/` with `course.json` (same shape as `public/courses/sql/course.json`, see
-   `src/lib/types.ts`) and `dataset.json` (`{"sql": "..."}`, the script the practice database starts from).
-2. Add an entry to `public/courses/index.json`: `id` (lowercase letters, digits, dashes), `title`, `eyebrow`,
-   `brand`, `shortTitle`, `summary`, `lead`, `outcomes`, optional `pace`.
+   `src/lib/types.ts`) and, for SQL courses, `dataset.json` (`{"sql": "..."}`).
+2. Add an entry to `public/courses/index.json`: `id`, `kind` (`sql` or `general`), `title`, `eyebrow`, `brand`,
+   `shortTitle`, `summary`, `lead`, `outcomes`, optional `pace` and `modules` (the module count).
 3. Deploy. The course appears in the catalogue at `/`, opens at `/?course=<id>`, and gets its own saved progress.
 
-Courses currently share the SQL practice engine (PGlite); a course without SQL exercises can still use the
-lessons, interactive blocks and quizzes.
+Course files in `public/` can be downloaded by anyone who knows the address; only the exam answers are protected.
 
 ## Accounts and progress
 

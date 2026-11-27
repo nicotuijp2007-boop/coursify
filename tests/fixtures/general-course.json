@@ -1,0 +1,441 @@
+{
+  "built": "2026-11-27T14:51:43.946Z",
+  "engine": "none",
+  "generator": "coursify course builder",
+  "language": "en",
+  "setups": {},
+  "files": {},
+  "kit": {},
+  "modules": [
+    {
+      "id": "m01",
+      "num": "1",
+      "title": "Module topic 1",
+      "kind": "core",
+      "setup": "",
+      "hours": 0.5,
+      "summary": "Summary 1.",
+      "objectives": [
+        "decide case 1a",
+        "explain case 1b"
+      ],
+      "lessons": [
+        {
+          "id": "m01-l1",
+          "num": "1.1",
+          "title": "Lesson 1.1",
+          "minutes": 15,
+          "goal": "Afterwards you can handle it.",
+          "explain": "<h3>lesson 1.1</h3><p>lesson 1.1 matters because it decides what happens next for the client. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. </p>",
+          "examples": [
+            {
+              "note": "<p>Worked example for lesson 1.1: a client calls about a late payout.</p>"
+            }
+          ],
+          "mistakes": [
+            {
+              "text": "<p>Treating a question as a complaint, or the other way round.</p>"
+            }
+          ],
+          "exercises": [
+            {
+              "id": "m01-l1-e1",
+              "prompt": "<p>Is this a complaint? Explain.</p>",
+              "check": "manual",
+              "solution": "<p>Yes: the client is dissatisfied and expects a response, whatever words they use.</p>",
+              "hint": "Look for dissatisfaction.",
+              "level": "basic"
+            },
+            {
+              "id": "m01-l1-e2",
+              "prompt": "<p>Apply this to a case from your own work.</p>",
+              "check": "manual",
+              "solution": "<p>A good answer names the case, the step, the deadline and who handles it.</p>",
+              "hint": "Pick a recent case.",
+              "level": "stretch"
+            }
+          ],
+          "recap": [
+            "Register every complaint.",
+            "Answer within six weeks."
+          ],
+          "docs": [],
+          "sources": [
+            "complaints-handbook:1"
+          ]
+        },
+        {
+          "id": "m01-l2",
+          "num": "1.2",
+          "title": "Lesson 1.2",
+          "minutes": 15,
+          "goal": "Afterwards you can handle it.",
+          "explain": "<h3>lesson 1.2</h3><p>lesson 1.2 matters because it decides what happens next for the client. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. </p>",
+          "examples": [
+            {
+              "note": "<p>Worked example for lesson 1.2: a client calls about a late payout.</p>"
+            }
+          ],
+          "mistakes": [
+            {
+              "text": "<p>Treating a question as a complaint, or the other way round.</p>"
+            }
+          ],
+          "exercises": [
+            {
+              "id": "m01-l2-e1",
+              "prompt": "<p>Is this a complaint? Explain.</p>",
+              "check": "manual",
+              "solution": "<p>Yes: the client is dissatisfied and expects a response, whatever words they use.</p>",
+              "hint": "Look for dissatisfaction.",
+              "level": "basic"
+            },
+            {
+              "id": "m01-l2-e2",
+              "prompt": "<p>Apply this to a case from your own work.</p>",
+              "check": "manual",
+              "solution": "<p>A good answer names the case, the step, the deadline and who handles it.</p>",
+              "hint": "Pick a recent case.",
+              "level": "stretch"
+            }
+          ],
+          "recap": [
+            "Register every complaint.",
+            "Answer within six weeks."
+          ],
+          "docs": [],
+          "sources": [
+            "complaints-handbook:2"
+          ]
+        }
+      ],
+      "checkpoint": {
+        "intro": "<p>Check what you learned.</p>",
+        "quiz": [
+          {
+            "id": "m01-q1",
+            "type": "mc",
+            "text": "<p>Checkpoint question 1?</p>",
+            "options": [
+              {
+                "text": "Right",
+                "correct": true
+              },
+              {
+                "text": "Wrong A",
+                "correct": false
+              },
+              {
+                "text": "Wrong B",
+                "correct": false
+              }
+            ],
+            "explain": "<p>Because.</p>"
+          },
+          {
+            "id": "m01-q2",
+            "type": "mc",
+            "text": "<p>Checkpoint question 2?</p>",
+            "options": [
+              {
+                "text": "Right",
+                "correct": true
+              },
+              {
+                "text": "Wrong A",
+                "correct": false
+              },
+              {
+                "text": "Wrong B",
+                "correct": false
+              }
+            ],
+            "explain": "<p>Because.</p>"
+          },
+          {
+            "id": "m01-q3",
+            "type": "mc",
+            "text": "<p>Checkpoint question 3?</p>",
+            "options": [
+              {
+                "text": "Right",
+                "correct": true
+              },
+              {
+                "text": "Wrong A",
+                "correct": false
+              },
+              {
+                "text": "Wrong B",
+                "correct": false
+              }
+            ],
+            "explain": "<p>Because.</p>"
+          },
+          {
+            "id": "m01-q4",
+            "type": "mc",
+            "text": "<p>Checkpoint question 4?</p>",
+            "options": [
+              {
+                "text": "Right",
+                "correct": true
+              },
+              {
+                "text": "Wrong A",
+                "correct": false
+              },
+              {
+                "text": "Wrong B",
+                "correct": false
+              }
+            ],
+            "explain": "<p>Because.</p>"
+          },
+          {
+            "id": "m01-q5",
+            "type": "mc",
+            "text": "<p>Checkpoint question 5?</p>",
+            "options": [
+              {
+                "text": "Right",
+                "correct": true
+              },
+              {
+                "text": "Wrong A",
+                "correct": false
+              },
+              {
+                "text": "Wrong B",
+                "correct": false
+              }
+            ],
+            "explain": "<p>Because.</p>"
+          }
+        ],
+        "practical": {
+          "id": "m01-p1",
+          "prompt": "<p>Handle this complaint from start to finish.</p>",
+          "check": "manual",
+          "solution": "<p>Register it the same day, confirm within two working days, answer within six weeks, and mention escalation.</p>",
+          "minutes": 20
+        }
+      }
+    },
+    {
+      "id": "m02",
+      "num": "2",
+      "title": "Module topic 2",
+      "kind": "core",
+      "setup": "",
+      "hours": 0.5,
+      "summary": "Summary 2.",
+      "objectives": [
+        "decide case 2a",
+        "explain case 2b"
+      ],
+      "lessons": [
+        {
+          "id": "m02-l1",
+          "num": "2.1",
+          "title": "Lesson 2.1",
+          "minutes": 15,
+          "goal": "Afterwards you can handle it.",
+          "explain": "<h3>lesson 2.1</h3><p>lesson 2.1 matters because it decides what happens next for the client. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. </p>",
+          "examples": [
+            {
+              "note": "<p>Worked example for lesson 2.1: a client calls about a late payout.</p>"
+            }
+          ],
+          "mistakes": [
+            {
+              "text": "<p>Treating a question as a complaint, or the other way round.</p>"
+            }
+          ],
+          "exercises": [
+            {
+              "id": "m02-l1-e1",
+              "prompt": "<p>Is this a complaint? Explain.</p>",
+              "check": "manual",
+              "solution": "<p>Yes: the client is dissatisfied and expects a response, whatever words they use.</p>",
+              "hint": "Look for dissatisfaction.",
+              "level": "basic"
+            },
+            {
+              "id": "m02-l1-e2",
+              "prompt": "<p>Apply this to a case from your own work.</p>",
+              "check": "manual",
+              "solution": "<p>A good answer names the case, the step, the deadline and who handles it.</p>",
+              "hint": "Pick a recent case.",
+              "level": "stretch"
+            }
+          ],
+          "recap": [
+            "Register every complaint.",
+            "Answer within six weeks."
+          ],
+          "docs": [],
+          "sources": [
+            "complaints-handbook:3"
+          ]
+        },
+        {
+          "id": "m02-l2",
+          "num": "2.2",
+          "title": "Lesson 2.2",
+          "minutes": 15,
+          "goal": "Afterwards you can handle it.",
+          "explain": "<h3>lesson 2.2</h3><p>lesson 2.2 matters because it decides what happens next for the client. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. Work through it in order, write down what you decided and why, and check the result with the client before you close the case. </p>",
+          "examples": [
+            {
+              "note": "<p>Worked example for lesson 2.2: a client calls about a late payout.</p>"
+            }
+          ],
+          "mistakes": [
+            {
+              "text": "<p>Treating a question as a complaint, or the other way round.</p>"
+            }
+          ],
+          "exercises": [
+            {
+              "id": "m02-l2-e1",
+              "prompt": "<p>Is this a complaint? Explain.</p>",
+              "check": "manual",
+              "solution": "<p>Yes: the client is dissatisfied and expects a response, whatever words they use.</p>",
+              "hint": "Look for dissatisfaction.",
+              "level": "basic"
+            },
+            {
+              "id": "m02-l2-e2",
+              "prompt": "<p>Apply this to a case from your own work.</p>",
+              "check": "manual",
+              "solution": "<p>A good answer names the case, the step, the deadline and who handles it.</p>",
+              "hint": "Pick a recent case.",
+              "level": "stretch"
+            }
+          ],
+          "recap": [
+            "Register every complaint.",
+            "Answer within six weeks."
+          ],
+          "docs": [],
+          "sources": [
+            "complaints-handbook:4"
+          ]
+        }
+      ],
+      "checkpoint": {
+        "intro": "<p>Check what you learned.</p>",
+        "quiz": [
+          {
+            "id": "m02-q1",
+            "type": "mc",
+            "text": "<p>Checkpoint question 1?</p>",
+            "options": [
+              {
+                "text": "Right",
+                "correct": true
+              },
+              {
+                "text": "Wrong A",
+                "correct": false
+              },
+              {
+                "text": "Wrong B",
+                "correct": false
+              }
+            ],
+            "explain": "<p>Because.</p>"
+          },
+          {
+            "id": "m02-q2",
+            "type": "mc",
+            "text": "<p>Checkpoint question 2?</p>",
+            "options": [
+              {
+                "text": "Right",
+                "correct": true
+              },
+              {
+                "text": "Wrong A",
+                "correct": false
+              },
+              {
+                "text": "Wrong B",
+                "correct": false
+              }
+            ],
+            "explain": "<p>Because.</p>"
+          },
+          {
+            "id": "m02-q3",
+            "type": "mc",
+            "text": "<p>Checkpoint question 3?</p>",
+            "options": [
+              {
+                "text": "Right",
+                "correct": true
+              },
+              {
+                "text": "Wrong A",
+                "correct": false
+              },
+              {
+                "text": "Wrong B",
+                "correct": false
+              }
+            ],
+            "explain": "<p>Because.</p>"
+          },
+          {
+            "id": "m02-q4",
+            "type": "mc",
+            "text": "<p>Checkpoint question 4?</p>",
+            "options": [
+              {
+                "text": "Right",
+                "correct": true
+              },
+              {
+                "text": "Wrong A",
+                "correct": false
+              },
+              {
+                "text": "Wrong B",
+                "correct": false
+              }
+            ],
+            "explain": "<p>Because.</p>"
+          },
+          {
+            "id": "m02-q5",
+            "type": "mc",
+            "text": "<p>Checkpoint question 5?</p>",
+            "options": [
+              {
+                "text": "Right",
+                "correct": true
+              },
+              {
+                "text": "Wrong A",
+                "correct": false
+              },
+              {
+                "text": "Wrong B",
+                "correct": false
+              }
+            ],
+            "explain": "<p>Because.</p>"
+          }
+        ],
+        "practical": {
+          "id": "m02-p1",
+          "prompt": "<p>Handle this complaint from start to finish.</p>",
+          "check": "manual",
+          "solution": "<p>Register it the same day, confirm within two working days, answer within six weeks, and mention escalation.</p>",
+          "minutes": 20
+        }
+      }
+    }
+  ]
+}

@@ -3,15 +3,15 @@ import { CircleAlert, TriangleAlert } from 'lucide-react';
 import { useApp } from '@/state/app';
 
 export function Banners() {
-  const { status, storageIssue, saveFailed, cloud, source } = useApp();
+  const { status, storageIssue, saveFailed, cloud, source, isSql } = useApp();
   return (
     <>
-      {status.state === 'unavailable' && (
+      {isSql && status.state === 'unavailable' && (
         <div className="banner" data-tone="err" role="alert"><CircleAlert size={20} aria-hidden="true" />
           <div><strong>The in-page database could not start in this browser.</strong>
             You can still read every lesson and see the expected outputs; run your SQL in the Supabase SQL editor instead. Reloading the page tries again.</div></div>
       )}
-      {status.state === 'error' && (
+      {isSql && status.state === 'error' && (
         <div className="banner" data-tone="err" role="alert"><CircleAlert size={20} aria-hidden="true" />
           <div><strong>The practice database for this lesson could not be built.</strong>Use Reset database to try again. If it keeps failing, reload the page.</div></div>
       )}

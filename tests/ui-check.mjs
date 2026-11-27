@@ -324,7 +324,8 @@ async function newResult(card, action) {
 }
 
 // 11. Final exam and certificate.
-const allPassed = { ex: {}, drafts: {}, quiz: {}, lessons: {}, kit: {}, proj: {}, quizBest: {}, revealed: {},
+const allPassed = { ex: {}, drafts: {}, quiz: {}, lessons: {}, kit: {}, proj: {}, revealed: {},
+  quizBest: Object.fromEntries(course.modules.filter(m => m.checkpoint?.quiz.some(q => q.type === 'mc')).map(m => [m.id, { score: 100, passed: true }])),
   practical: Object.fromEntries(course.modules.filter(m => m.checkpoint?.practical).map(m => [m.checkpoint.practical.id, true])) };
 const doneRow = [{ course_id: 'sql', progress: allPassed, updated_at: new Date().toISOString() }];
 {
@@ -411,6 +412,50 @@ const doneRow = [{ course_id: 'sql', progress: allPassed, updated_at: new Date()
   await v.locator('.banner', { hasText: 'No certificate' }).waitFor();
   ok('verify: unknown code explained', true);
   await v.context().close();
+}
+
+// 12. A general course made by the course builder (no database): reading examples, written exercises.
+{
+  const gcourse = JSON.parse(fs.readFileSync('tests/fixtures/general-course.json', 'utf8'));
+  const gentry = JSON.parse(fs.readFileSync('tests/fixtures/general-index-entry.json', 'utf8'));
+  const realIndex = JSON.parse(fs.readFileSync('public/courses/index.json', 'utf8'));
+  const p = await page();
+  let datasetAsked = false;
+  await p.route('**/courses/index.json', r => r.fulfill({ json: { courses: [...realIndex.courses, gentry] } }));
+  await p.route(`**/courses/${gentry.id}/course.json`, r => r.fulfill({ json: gcourse }));
+  await p.route(`**/courses/${gentry.id}/dataset.json`, r => { datasetAsked = true; r.fulfill({ status: 404, body: '' }); });
+  await p.route('**/pglite/**', r => { datasetAsked = true; r.continue(); });
+  await p.goto(base);
+  await p.locator('.catalog-card h2', { hasText: gentry.title }).waitFor();
+  ok('general course: listed in the catalogue with its module count', /2 modules/.test(await p.locator('.catalog-card', { hasText: gentry.title }).textContent()));
+  await p.goto(base + `?course=${gentry.id}#m01-l1`);
+  await p.locator('h1', { hasText: gcourse.modules[0].lessons[0].title }).waitFor();
+  ok('general course: no database controls and no database download', (await p.locator('#engine').count()) === 0 && (await p.locator('button', { hasText: 'Reset database' }).count()) === 0 && !datasetAsked);
+  ok('general course: worked examples are reading, without an editor', (await p.locator('[data-kind="reading"]').count()) >= 1 && (await p.locator('[data-kind="reading"] textarea').count()) === 0);
+  const ex = p.locator('[data-kind="written"]').first();
+  await ex.locator('[data-act=check]').click();
+  ok('written exercise: asks for an answer before comparing', (await ex.locator('.solution').count()) === 0);
+  await ex.locator('textarea').fill('The client is unhappy and expects an answer, so it is a complaint.');
+  await ex.locator('[data-act=check]').click();
+  await ex.locator('.solution').waitFor();
+  ok('written exercise: shows the model answer after comparing', /dissatisfied/.test(await ex.locator('.solution').textContent()));
+  await ex.locator('[data-act=self-pass]').click();
+  await ex.locator('.status-chip', { hasText: 'Passed' }).waitFor();
+  ok('written exercise: "Yes, I had it" marks it done', true);
+  await p.screenshot({ path: `${shots}/general-lesson.png`, fullPage: true });
+  await p.goto(base + `?course=${gentry.id}#m01-cp`);
+  const cp = gcourse.modules[0].checkpoint;
+  for (const q of cp.quiz) await p.locator(`fieldset[data-q="${q.id}"] input[value="${q.options.findIndex(o => o.correct)}"]`).check();
+  await p.locator('#quizform button[type=submit]').click();
+  await p.locator('.score').waitFor();
+  const prac = p.locator('#prac');
+  await prac.locator('textarea').fill('Register it today, confirm within two working days, answer within six weeks.');
+  await prac.locator('[data-act=check]').click();
+  await prac.locator('[data-act=self-pass]').click();
+  await p.locator('h2', { hasText: 'Module completed' }).waitFor();
+  ok('general course: checkpoint quiz and written practical complete the module', true);
+  ok('general course: no page errors', p.errors.length === 0, p.errors.join('; '));
+  await p.context().close();
 }
 
 await browser.close();

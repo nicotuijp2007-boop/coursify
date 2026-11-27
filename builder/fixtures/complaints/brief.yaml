@@ -1,0 +1,16 @@
+# Sample brief used by the builder's tests (with a fake model; no API calls).
+id: handling-complaints
+title: Handling client complaints
+audience: Client service staff at an insurance brokerage, new to complaint handling
+level: beginner
+language: en
+modules: 2
+lessons_per_module: 2
+minutes_per_lesson: 15
+context: a mid-sized Dutch insurance brokerage
+exam:
+  questions_per_module: 2
+  pool_per_module: 3
+  pass_percent: 75
+  time_limit_minutes: 30
+  cooldown_hours: 24

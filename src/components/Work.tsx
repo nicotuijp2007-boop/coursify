@@ -1,7 +1,7 @@
 // Worked examples, common mistakes and exercises. Behaviour follows the original course
 // (legacy.html: renderLesson, wireExercise, wireJsExercise); presentation follows the kit's SqlExercise.
 import { useState, type ReactNode } from 'react';
-import { BookOpen, Bug, Database, Eye, EyeOff, Lightbulb, ListChecks, Play, Code } from 'lucide-react';
+import { BookOpen, Bug, Check, Database, Eye, EyeOff, Lightbulb, ListChecks, PenLine, Play, Code, RotateCcw } from 'lucide-react';
 import { ActButton, Feedback, Logs, ResLabel, ResultTable, StatusChip } from './ui';
 import { Editor } from './Editor';
 import { Html } from './Html';
@@ -35,6 +35,21 @@ const pgError = (e: unknown, extra = '') => (
 
 // ------------------------------------------------------------------ worked example
 export function ExampleCard({ mod, idx, ex, i }: { mod: Module; idx: number; ex: Example; i: number }) {
+  if (!ex.sql && !ex.js) return <ReadingExample ex={ex} i={i} />;
+  return <RunnableExample mod={mod} idx={idx} ex={ex} i={i} />;
+}
+
+/** A worked example to read (general courses): no code to run. */
+function ReadingExample({ ex, i }: { ex: Example; i: number }) {
+  return (
+    <div className="work-card" data-ex={i} data-kind="reading">
+      <div className="work-head"><span className="mp-eyebrow"><BookOpen size={16} aria-hidden="true" />Example {i + 1}</span></div>
+      <div className="work-body"><Html html={ex.note} /></div>
+    </div>
+  );
+}
+
+function RunnableExample({ mod, idx, ex, i }: { mod: Module; idx: number; ex: Example; i: number }) {
   const { engine } = useApp();
   const [code, setCode] = useState(ex.js ?? ex.sql ?? '');
   const r = useRunner();
@@ -108,7 +123,80 @@ interface ExProps {
   domId?: string;
 }
 
-export function ExerciseCard({ mod, idx, e, title, onPass, extraHead, footer, domId }: ExProps) {
+export function ExerciseCard(props: ExProps) {
+  const { isSql } = useApp();
+  if (!isSql && props.e.check === 'manual') return <WrittenExercise {...props} />;
+  return <CodeExercise {...props} />;
+}
+
+/**
+ * A written exercise (general courses): the learner writes an answer, compares it with the model answer and
+ * says honestly whether they had it. "I had it" counts as passed; the checkpoint quiz and the final exam are the
+ * checks nobody can mark themselves.
+ */
+function WrittenExercise({ e, title, onPass, extraHead, footer, domId }: ExProps) {
+  const { P, setP, toast } = useApp();
+  const saved = P.drafts[e.id];
+  const [text, setTextState] = useState<string>(typeof saved === 'string' ? saved : '');
+  const setText = (v: string) => { setTextState(v); setP('drafts', e.id, v); };
+  const state = exerciseState(P, e.id);
+  const [open, setOpen] = useState(state === 'passed');
+  const compare = () => {
+    if (!text.trim()) { toast('Write your answer first, then compare.', 'info'); return; }
+    if (!P.drafts[e.id + ':tried']) setP('drafts', e.id + ':tried', true);
+    setOpen(true);
+  };
+  const judge = (ok: boolean) => {
+    if (ok) { if (!P.ex[e.id]) { setP('ex', e.id, true); toast(`${title} done.`, 'ok'); } onPass?.(); }
+    else { setP('ex', e.id, undefined); setOpen(false); toast('Improve your answer with the model answer in mind, then compare again.', 'info'); }
+  };
+  return (
+    <div className="work-card" data-split="true" data-exid={e.id} id={domId} data-state={state} data-kind="written">
+      <div className="work-head">
+        <span className="mp-eyebrow"><PenLine size={16} aria-hidden="true" />{title}</span>
+        <span className="mp-chip" data-tone="muted">Written answer</span>
+        {'level' in e && e.level && <span className="mp-chip" data-tone="muted">{e.level}</span>}
+        <span className="grow" />
+        {extraHead}
+        <StatusChip state={state} />
+      </div>
+      <div className="work-body">
+        <div className="work-prompt"><Html html={e.prompt} /></div>
+        <div className="work-side">
+          <Editor value={text} onChange={setText} label={`${title} answer`} plain placeholder="Write your answer in your own words…" />
+          <div className="btn-row">
+            <button type="button" className="btn-primary" onClick={compare} data-act="check"><ListChecks size={16} aria-hidden="true" />Compare with the model answer</button>
+            {'hint' in e && e.hint && <HintButton hint={e.hint} />}
+          </div>
+          {open && (
+            <div className="solution mp-fade-in">
+              <ResLabel>Model answer</ResLabel>
+              <Html html={e.solution || ''} />
+              {state !== 'passed' ? (
+                <div className="btn-row" style={{ marginTop: 'var(--space-4)' }}>
+                  <span className="small" style={{ alignSelf: 'center' }}>Did your answer cover the same points?</span>
+                  <button type="button" className="btn-secondary btn-sm" onClick={() => judge(true)} data-act="self-pass"><Check size={15} aria-hidden="true" />Yes, I had it</button>
+                  <button type="button" className="btn-ghost btn-sm" onClick={() => judge(false)} data-act="self-retry"><RotateCcw size={15} aria-hidden="true" />Not yet, I'll improve it</button>
+                </div>
+              ) : <p className="editor-hint" style={{ marginTop: 'var(--space-3)' }}>Marked as done.</p>}
+            </div>
+          )}
+          {footer}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HintButton({ hint }: { hint: string }) {
+  const [show, setShow] = useState(false);
+  return <>
+    <button type="button" className="btn-ghost" onClick={() => setShow(s => !s)} aria-expanded={show} data-act="hint"><Lightbulb size={16} aria-hidden="true" />Hint</button>
+    {show && <Feedback tone="info" title="Hint:">{hint}</Feedback>}
+  </>;
+}
+
+function CodeExercise({ mod, idx, e, title, onPass, extraHead, footer, domId }: ExProps) {
   const { engine, P, setP, toast } = useApp();
   const isJs = e.check === 'js', manual = e.check === 'manual';
   const saved = P.drafts[e.id];

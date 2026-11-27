@@ -11,5 +11,5 @@ export default defineConfig({
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   server: { port: 5173, strictPort: true },
   preview: { port: 4173, strictPort: true },
-  test: { include: ['src/**/*.test.ts'], environment: 'node' },
+  test: { include: ['src/**/*.test.ts', 'builder/**/*.test.ts'], environment: 'node' },
 });

@@ -139,7 +139,7 @@ function Sidebar({ route, open, onNavigate }: { route: Route; open: boolean; onN
 }
 
 function Topbar({ route, onMenu, menuOpen }: { route: Route; onMenu: () => void; menuOpen: boolean }) {
-  const { status, engine, dataset, toast, confirm } = useApp();
+  const { status, engine, dataset, toast, confirm, isSql } = useApp();
   const target = stateLesson(route);
   const reset = async () => {
     if (!target) { toast('Open a lesson first: the database is rebuilt for the lesson you are in.'); return; }
@@ -155,9 +155,11 @@ function Topbar({ route, onMenu, menuOpen }: { route: Route; onMenu: () => void;
     <header className="topbar">
       <button type="button" className="btn-ghost menu-btn" onClick={onMenu} aria-controls="side" aria-expanded={menuOpen}><Menu size={18} aria-hidden="true" />Menu</button>
       <span className="grow" />
-      <span className="engine" id="engine" role="status" data-state={status.state} title={engine.fullVersion || undefined}><span className="dot" aria-hidden="true" /><span className="lbl-engine">{status.label}</span></span>
-      <button type="button" className="btn-secondary btn-sm" onClick={reset} disabled={status.state === 'unavailable' || status.state === 'starting'} title="Reset database"><RotateCcw size={15} aria-hidden="true" /><span className="lbl">Reset database</span></button>
-      <button type="button" className="btn-secondary btn-sm" onClick={copyDataset} title="Copy dataset script"><Copy size={15} aria-hidden="true" /><span className="lbl">Copy dataset script</span></button>
+      {isSql && <>
+        <span className="engine" id="engine" role="status" data-state={status.state} title={engine.fullVersion || undefined}><span className="dot" aria-hidden="true" /><span className="lbl-engine">{status.label}</span></span>
+        <button type="button" className="btn-secondary btn-sm" onClick={reset} disabled={status.state === 'unavailable' || status.state === 'starting'} title="Reset database"><RotateCcw size={15} aria-hidden="true" /><span className="lbl">Reset database</span></button>
+        <button type="button" className="btn-secondary btn-sm" onClick={copyDataset} title="Copy dataset script"><Copy size={15} aria-hidden="true" /><span className="lbl">Copy dataset script</span></button>
+      </>}
       <AccountMenu showCourses />
       <ReadProgress />
     </header>
@@ -165,7 +167,7 @@ function Topbar({ route, onMenu, menuOpen }: { route: Route; onMenu: () => void;
 }
 
 export function App() {
-  const { meta, course, setLast, status } = useApp();
+  const { meta, course, setLast, status, isSql } = useApp();
   const hash = useHash();
   const route = parseRoute(course, hash);
   const [menu, setMenu] = useState(false);
@@ -198,7 +200,7 @@ export function App() {
   const engine = useApp().engine;
   const target = stateLesson(route);
   useEffect(() => {
-    if (status.state === 'ready' && target) engine.prepare(target.mod, target.idx).catch(() => {});
+    if (isSql && status.state === 'ready' && target) engine.prepare(target.mod, target.idx).catch(() => {});
   }, [route.hash, status.state === 'ready']); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (

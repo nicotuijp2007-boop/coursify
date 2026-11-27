@@ -93,7 +93,7 @@ function ExamIntro({ state, onStart }: { state: State; onStart: (a: ExamAttempt)
         <h2>How the exam works</h2>
         <ul className="ticks">
           <li><strong>{settings.questions_per_topic * course.modules.filter(m => m.kind === 'core').length} questions</strong>, {settings.questions_per_topic} from every module, drawn at random. They are new: none of them appear in the lessons or checkpoints.</li>
-          <li>Some questions ask you to <strong>query the practice database</strong> and enter the result, so they test whether you can write the SQL, not only recognise it.</li>
+          {useApp().isSql && <li>Some questions ask you to <strong>query the practice database</strong> and enter the result, so they test whether you can write the SQL, not only recognise it.</li>}
           <li><strong>{settings.time_limit_minutes} minutes.</strong> Your answers are saved as you go; when time runs out, what you saved is handed in.</li>
           <li>You pass with <strong>{settings.pass_percent}%</strong> or more. Not this time? You can try again after {settings.cooldown_hours} hours, with different questions.</li>
           <li>Work on your own and without AI tools: the certificate says you can do this yourself.</li>
@@ -104,7 +104,7 @@ function ExamIntro({ state, onStart }: { state: State; onStart: (a: ExamAttempt)
         <section className="card exam-card">
           <div className="exam-state" data-tone="muted"><Lock size={20} aria-hidden="true" /><div>
             <h2>Finish the course first</h2>
-            <p className="muted">The exam opens when every module's checkpoint is passed. Still to do:</p></div></div>
+            <p className="muted">The exam opens when every module's checkpoint is passed: the quiz and the practical. Still to do:</p></div></div>
           <ul className="exam-missing">{readiness.missing.map(m => <li key={m.id}><a href={`#${m.id}-cp`}>Module {m.num} · {m.title}</a></li>)}</ul>
         </section>
       ) : waiting ? (

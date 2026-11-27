@@ -34,7 +34,7 @@ function Section({ id, n, title, lead, children }: { id: string; n: number; titl
 }
 
 export function LessonPage({ mod, idx }: { mod: Module; idx: number }) {
-  const { course, P, setP, toast } = useApp();
+  const { course, P, setP, toast, isSql } = useApp();
   const L = mod.lessons[idx];
   const prev = idx > 0 ? mod.lessons[idx - 1] : null;
   const nextId = idx < mod.lessons.length - 1 ? mod.lessons[idx + 1].id : mod.checkpoint ? mod.id + '-cp' : null;
@@ -67,7 +67,7 @@ export function LessonPage({ mod, idx }: { mod: Module; idx: number }) {
       <Section id="h-explain" n={num('h-explain')} title="Explanation"><Html html={L.explain} /></Section>
 
       {L.examples.length > 0 && (
-        <Section id="h-ex" n={num('h-ex')} title="Worked examples" lead="Run each example in order: later examples and exercises build on what earlier examples create.">
+        <Section id="h-ex" n={num('h-ex')} title="Worked examples" lead={isSql ? 'Run each example in order: later examples and exercises build on what earlier examples create.' : 'Read each example and follow the reasoning step by step before you start the exercises.'}>
           {L.examples.map((ex, i) => <Reveal key={i}><ExampleCard mod={mod} idx={idx} ex={ex} i={i} /></Reveal>)}
         </Section>
       )}
@@ -78,7 +78,7 @@ export function LessonPage({ mod, idx }: { mod: Module; idx: number }) {
         </Section>
       )}
 
-      <Section id="h-exc" n={num('h-exc')} title="Exercises" lead={<>Write your answer, run it with <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>Enter</kbd>, then check it. The model answer unlocks after your first check.</>}>
+      <Section id="h-exc" n={num('h-exc')} title="Exercises" lead={isSql ? <>Write your answer, run it with <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>Enter</kbd>, then check it. The model answer unlocks after your first check.</> : 'Write your answer first, then compare it with the model answer and be honest about whether you had it.'}>
         {L.exercises.map((e, i) => <Reveal key={e.id}><ExerciseCard mod={mod} idx={idx} e={e} title={`Exercise ${i + 1}`} /></Reveal>)}
       </Section>
 

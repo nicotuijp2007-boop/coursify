@@ -67,7 +67,7 @@ function CourseLoader({ meta, userId }: { meta: CourseMeta; userId: string }) {
   const load = async () => {
     const [course, d, opened] = await Promise.all([
       getJson<Course>(courseFile(meta.id, 'course.json')),
-      getJson<{ sql: string }>(courseFile(meta.id, 'dataset.json')),
+      meta.kind === 'general' ? Promise.resolve({ sql: '' }) : getJson<{ sql: string }>(courseFile(meta.id, 'dataset.json')),
       openProgress({ backend, storage: browserStorage(), courseId: meta.id, userId, legacyKey: meta.legacyStorageKey }),
     ]);
     if (!Array.isArray(course.modules)) throw new Error(`${courseFile(meta.id, 'course.json')} has no modules list.`);

@@ -1,0 +1,17 @@
+{
+  "id": "handling-complaints",
+  "kind": "general",
+  "title": "Handling client complaints",
+  "eyebrow": "Client service",
+  "brand": "Client service · Complaints",
+  "shortTitle": "Complaints",
+  "summary": "Recognise, register and resolve complaints within the deadlines.",
+  "lead": "A practical course on complaints.",
+  "pace": "About 1 hour a week",
+  "outcomes": [
+    "recognise a complaint;",
+    "register it correctly;",
+    "answer it on time."
+  ],
+  "modules": 2
+}

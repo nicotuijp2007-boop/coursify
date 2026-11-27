@@ -64,9 +64,11 @@ export async function verifyCertificate(code: string): Promise<(Certificate & { 
   return data;
 }
 
-/** The exam unlocks once every core module is completed (its checkpoint practical passed). */
+/** The exam unlocks once every core module's checkpoint is passed: its practical, and its quiz where it has one. */
 export function examReadiness(course: Course, P: Progress): { ready: boolean; missing: Module[] } {
-  const missing = course.modules.filter(m => m.kind === 'core' && m.checkpoint?.practical && moduleStatus(course, P, m) !== 'completed');
+  const missing = course.modules.filter(m => m.kind === 'core' && m.checkpoint && (
+    (m.checkpoint.practical && moduleStatus(course, P, m) !== 'completed')
+    || (m.checkpoint.quiz.some(q => q.type === 'mc') && !P.quizBest[m.id]?.passed)));
   return { ready: missing.length === 0, missing };
 }
 

@@ -14,6 +14,8 @@ interface Toast { id: number; text: string; tone: Tone }
 
 interface AppValue {
   meta: CourseMeta;
+  /** The course uses the in-browser PostgreSQL (SQL courses); general courses have no database. */
+  isSql: boolean;
   course: Course;
   dataset: string;
   engine: Engine;
@@ -58,9 +60,10 @@ export function AppProvider({ meta, course, dataset, opened, backend, userId, ch
     onChange: s => { setCloud(s.state); setSaveFailed(!s.localOk); },
   }), [backend, storage, meta.id, userId]);
 
+  const isSql = meta.kind !== 'general';
   useEffect(() => {
-    engine.start().catch(e => console.error('Database engine failed to start', e));
-  }, [engine]);
+    if (isSql) engine.start().catch(e => console.error('Database engine failed to start', e));
+  }, [engine, isSql]);
 
   // Send unsent changes when the tab is hidden or closed, and as soon as the connection is back.
   useEffect(() => {
@@ -106,7 +109,7 @@ export function AppProvider({ meta, course, dataset, opened, backend, userId, ch
   const confirm = useCallback((title: string, body: string, action: string) =>
     new Promise<boolean>(resolve => setDialog({ title, body, action, resolve })), []);
 
-  const value: AppValue = { meta, course, dataset, engine, status, P, setP, setLast, storageIssue: opened.issue, saveFailed, cloud, source: opened.source, toast, confirm };
+  const value: AppValue = { meta, isSql, course, dataset, engine, status, P, setP, setLast, storageIssue: opened.issue, saveFailed, cloud, source: opened.source, toast, confirm };
 
   return (
     <Ctx.Provider value={value}>
